@@ -35,4 +35,6 @@ Go into frontend folder
 cd frontend
 ```
 Run npm run dev
-```npm run dev```
+```
+npm run dev
+```
