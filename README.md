@@ -31,6 +31,8 @@ export default {
 
 # How to run frontend
 Go into frontend folder
-```cd frontend```
+```
+cd frontend
+```
 Run npm run dev
 ```npm run dev```
