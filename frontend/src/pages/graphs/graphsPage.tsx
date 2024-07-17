@@ -6,6 +6,7 @@ import OutputMenuBar from '../../components/output/outputMenuBar/OutputMenuBar';
 import TerminalOutput from '../../components/output/terminalOutput/TerminalOutput';
 import CodeGPT from '../../components/output/codeGPT/CodeGPT';
 import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
+import submitCodeFetch from '../../api'
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -71,8 +72,8 @@ function GraphsPage() {
     };
 
     const submitCode = () => {
-      console.log('code is ', code);
-      console.log('selected compole options are', selectedCompileOptions);
+      const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
+      submitCodeFetch(code, selectedCompileOptionString);
     }
 
     const resetDefault = () => {
