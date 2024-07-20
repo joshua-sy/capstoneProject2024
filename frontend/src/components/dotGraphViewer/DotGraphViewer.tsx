@@ -1,14 +1,17 @@
-import React, { useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { graphviz } from "d3-graphviz";
 import { Graphviz } from "graphviz-react";
 
-interface DotGraphViewerProps {
-  dotGraphString: string;
-}
-const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
-  dotGraphString,
-}) => {
+
+
+function DotGraphViewer() {
+  const data = `digraph "Call Graph" {
+    label="Call Graph";
   
+    Node0x55fc43c981a0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 1 \\{fun: printf\\}}"];
+    Node0x55fc43c98620 [shape=record,shape=box,label="{CallGraphNode ID: 0 \\{fun: main\\}|{<s0>1}}"];
+    Node0x55fc43c98620:s0 -> Node0x55fc43c981a0[color=black];
+  }`;
   const ref = useRef(null);
 
   const reset = useCallback(() => {
@@ -20,12 +23,12 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   
   return (
     <>
-      <div>
+      <div style={{width: '50%'}}>
         <div style={{ position: "absolute", }}>
           <button onClick={reset}>Reset</button>
         </div>
         <Graphviz
-          dot={dotGraphString}
+          dot={data}
           options={{ zoom: true, width: window.innerWidth, useWorker: false }}
           // ref={ref}
         />
