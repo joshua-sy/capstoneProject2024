@@ -38,9 +38,48 @@ function GraphsPage() {
     Node0x55fc43c98620 [shape=record,shape=box,label="{CallGraphNode ID: 0 \\{fun: main\\}|{<s0>1}}"];
     Node0x55fc43c98620:s0 -> Node0x55fc43c981a0[color=black];
   }`;
+
+
+  const icfgGraph = ` digraph "ICFG" {
+	  label="ICFG";
+    Node0x61d549e31a70 [shape=record,color=green,label="{NodeID: 9\\nFunExitBlockNode ID: 9 Exit(\\{  \\})\\n \\{fun: main\\}}"];
+    Node0x61d549e31800 [shape=record,color=blue,label="{NodeID: 8\\nRetBlockNode ID: 8   %call = call i32 (i8*, ...) @printf(i8* noundef %0), !dbg !15 \\{ ln: 4  cl: 4  fl: example.c \\} \\{fun: main\\}}"];
+    Node0x61d549e31800 -> Node0x61d549e31740[style=solid];
+    Node0x61d549e31740 [shape=record,color=black,label="{NodeID: 7\\nIntraBlockNode ID: 7      ret i32 0, !dbg !16 \\{ ln: 5  cl: 4  fl: example.c \\}    \\{fun: main\\}}"];
+    Node0x61d549e31740 -> Node0x61d549e31a70[style=solid];
+    Node0x61d549e31610 [shape=record,color=yellow,label="{NodeID: 6\\nFunEntryBlockNode ID: 6 Entry()\\n \\{fun: printf\\}}"];
+    Node0x61d549e1f7f0 [shape=record,color=red,label="{NodeID: 5\\nCallBlockNode ID: 5   %call = call i32 (i8*, ...) @printf(i8* noundef %0), !dbg !15 \\{ ln: 4  cl: 4  fl: example.c \\} \\{fun: main\\}|{|<s1>0x61d549e1f110}}"];
+    Node0x61d549e1f7f0 -> Node0x61d549e31800[style=solid];
+    Node0x61d549e1f7f0:s1 -> Node0x61d549e31610[style=solid,color=red];
+    Node0x61d549e31480 [shape=record,color=black,label="{NodeID: 4\\nIntraBlockNode ID: 4   NormalGepPE: [13\\<--4]  \\n   %0 = getelementptr [14 x i8], [14 x i8]* @.str, i64 0, i64 0 \\{  \\} \\{fun: main\\}}"];
+    Node0x61d549e31480 -> Node0x61d549e1f7f0[style=solid];
+    Node0x61d549e31360 [shape=record,color=black,label="{NodeID: 3\\nIntraBlockNode ID: 3      store i32 0, i32* %retval, align 4 \\{  \\}    \\{fun: main\\}}"];
+    Node0x61d549e31360 -> Node0x61d549e31480[style=solid];
+    Node0x61d549e310f0 [shape=record,color=black,label="{NodeID: 2\\nIntraBlockNode ID: 2   AddrPE: [9\\<--10]  \\n   %retval = alloca i32, align 4 \\{  \\} \\{fun: main\\}}"];
+    Node0x61d549e310f0 -> Node0x61d549e31360[style=solid];
+    Node0x61d549e30f90 [shape=record,color=yellow,label="{NodeID: 1\\nFunEntryBlockNode ID: 1 Entry(\\{ in line: 2 file: example.c \\})\\n \\{fun: main\\}}"];
+    Node0x61d549e30f90 -> Node0x61d549e18f20[style=solid];
+    Node0x61d549e30f90 -> Node0x61d549e310f0[style=solid];
+    Node0x61d549e18f20 [shape=record,color=purple,label="{NodeID: 0\\nCopyPE: [2\\<--3]  \\n i8* null \\{ constant data \\}AddrPE: [4\\<--1]  \\n @.str = private unnamed_addr constant [14 x i8] c\\"Hello, World!\\00\\", align 1 \\{ Glob  \\}AddrPE: [4\\<--1]  \\n @.str = private unnamed_addr constant [14 x i8] c\\"Hello, World!\\00\\", align 1 \\{ Glob  \\}AddrPE: [6\\<--7]  \\n main \\{ in line: 2 file: example.c \\}AddrPE: [15\\<--16]  \\n printf \\{  \\}}"];
+}  
+`
+
+
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
 
+  // const readFile = async () => {
+  //   const response = await fetch('/icfg.dot');
+  //   if (!response.ok) {
+  //     console.error('Failed to fetch the file:', response.statusText);
+  //     return '';
+  //   }
+  
+  //   const text = await response.text();
+  //   console.log('Contents of icfg.dot:', text);
+  //   return text;
+  // };
+  // const graph: string = await readFile();
   const [code, setCode] = useState(
     ` void swap(char **p, char **q) {
         char* t = *p; 
@@ -55,11 +94,16 @@ function GraphsPage() {
         swap(&a,&b);
       }`
     );
+
+    // const lineNumToHighlight: number[] = [];
+    const [lineNumToHighlight, setlineNumToHighlight] = useState<number[]>([]);
+
+
     
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={callGraph}/>;
+                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
             case 'Terminal Output':
                 return <TerminalOutput />;
             case 'CodeGPT':
@@ -67,7 +111,7 @@ function GraphsPage() {
             case 'LLVMIR':
                 return <LLVMIR />;
             default:
-                return <DotGraphViewer dotGraphString={callGraph}/>;
+                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
         }
     };
 
@@ -86,7 +130,7 @@ function GraphsPage() {
       <div style={inlineStyles.container}>
         <div style={{width:'50%'}}>
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode}/>
+          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight}/>
         </div>
         <div style={{width:'50%'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>

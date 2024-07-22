@@ -5,17 +5,18 @@ import * as monaco from 'monaco-editor';
 interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
+  lineNumToHighlight: number[];
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
 
-    // Highlight line 3 after the editor has mounted
-    highlightLine(3);
+    // // Highlight line 3 after the editor has mounted
+    // highlightLine(3);
 
     editor.onDidChangeModelContent(() => {
       const value = editor.getValue();
@@ -42,7 +43,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode}) => {
     }
   };
 
-  // Use the inline styles directly
+  useEffect(() => {
+    decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
+    lineNumToHighlight.forEach(lineNum => {
+      highlightLine(lineNum);
+    });
+  }, [lineNumToHighlight]);
+
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
