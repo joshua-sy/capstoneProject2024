@@ -2,7 +2,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
-const CodeEditor: React.FC = () => {
+interface CodeEditorProps {
+  code: string;
+  setCode: (code: string) => void;
+}
+
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
 
@@ -11,6 +16,11 @@ const CodeEditor: React.FC = () => {
 
     // Highlight line 3 after the editor has mounted
     highlightLine(3);
+
+    editor.onDidChangeModelContent(() => {
+      const value = editor.getValue();
+      setCode(value);
+    });
   };
 
   // Function to highlight a specific line
@@ -45,23 +55,12 @@ const CodeEditor: React.FC = () => {
 
   return (
     <>
-    <div style={{width: '50%'}}>
+    <div>
     <Editor
       height="90vh"
       language="c"
       theme="vs-dark"
-      value={`void swap(char **p, char **q) {
-              char* t = *p; 
-              *p = *q; 
-              *q = t;
-              }
-
-              int main() {
-              char a1, b1; 
-              char *a = &a1;
-              char *b = &b1;
-              swap(&a,&b);
-              }`}
+      value={code}
       onMount={handleEditorDidMount}
     />
 
