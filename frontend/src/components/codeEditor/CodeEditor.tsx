@@ -1,17 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { useLineHighlight } from '../../LineHighlightContext';
+
 
 interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
-  lineNumToHighlight: number[];
+  // lineNumToHighlight: number[];
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight}) => {
+
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode}) => {
+  const { lineNumToHighlight } = useLineHighlight();
+
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
-
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
 
@@ -44,7 +48,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
   };
 
   useEffect(() => {
-    decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
+    // decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
+    console.log('lineNumToHighlight in CodeEditor:', lineNumToHighlight);
     lineNumToHighlight.forEach(lineNum => {
       highlightLine(lineNum);
     });
@@ -79,3 +84,4 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
 };
 
 export default CodeEditor;
+

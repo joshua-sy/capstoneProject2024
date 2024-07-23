@@ -1,21 +1,25 @@
 import React, { useCallback, useRef, useEffect, useState } from "react";
 import { graphviz } from "d3-graphviz";
 import { Graphviz } from "graphviz-react";
+import { useLineHighlight } from '../../../LineHighlightContext';
+
 
 
 
 interface DotGraphViewerProps {
   dotGraphString: string;
-  lineNumToHighlight: number[];
-  setlineNumToHighlight: (newLineNumToHighlight: number[]) => void
+  // lineNumToHighlight: number[];
+  // setlineNumToHighlight: (newLineNumToHighlight: number[]) => void
   
 }
 const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   dotGraphString,
-  lineNumToHighlight,
-  setlineNumToHighlight,
+  // lineNumToHighlight,
+  // setlineNumToHighlight,
 }) => {
   const [selectedNode, setSelectedNode] = useState(null);
+  const { lineNumToHighlight, setLineNumToHighlight } = useLineHighlight();
+
 
   const data = `digraph "Call Graph" {
     label="Call Graph";
@@ -58,7 +62,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             const lineRegex = /line:\s(\d+)/g;
             const lnRegex = /ln:\s(\d+)/g;
             let matchLineNum;
-            let newlineNumToHighlight: number[] = lineNumToHighlight;
+            let newlineNumToHighlight: number[] = [...lineNumToHighlight];
+            console.log('newlineNumToHighlight before',typeof(newlineNumToHighlight) , newlineNumToHighlight);
+
             nodeTextContentList.forEach(nodeText => {
               console.log('nodeText in loop', nodeText)
               if ((matchLineNum = lineRegex.exec(nodeText)) !== null) {
@@ -69,11 +75,12 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
                 console.log('found num: ', parseInt(matchLineNum[1], 10));
               }
             });
-            console.log('lineNumToHighlight', lineNumToHighlight);
+            console.log('lineNumToHighlight in DotGraphViewer', lineNumToHighlight);
 
             console.log('nodeTextList', nodeTextList);
             console.log('nodeTextContentList', nodeTextContentList);
-            setlineNumToHighlight(newlineNumToHighlight);
+            console.log('newlineNumToHighlight', newlineNumToHighlight);
+            setLineNumToHighlight(newlineNumToHighlight);
             setSelectedNode(nodeId);
 
           }

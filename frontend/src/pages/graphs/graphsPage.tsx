@@ -7,6 +7,8 @@ import TerminalOutput from '../../components/output/terminalOutput/TerminalOutpu
 import CodeGPT from '../../components/output/codeGPT/CodeGPT';
 import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
 import submitCodeFetch from '../../api.ts'
+import { LineHighlightProvider } from '../../LineHighlightContext.tsx';
+
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -103,15 +105,19 @@ function GraphsPage() {
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
+                return ( 
+                  <LineHighlightProvider>
+                    <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
+                  </LineHighlightProvider>
+                  )
             case 'Terminal Output':
                 return <TerminalOutput />;
             case 'CodeGPT':
                 return <CodeGPT />;
             case 'LLVMIR':
                 return <LLVMIR />;
-            default:
-                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
+            // default:
+            //     return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
         }
     };
 
@@ -130,8 +136,10 @@ function GraphsPage() {
       <div style={inlineStyles.container}>
         <div style={{width:'50%'}}>
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight}/>
-        </div>
+          <LineHighlightProvider>
+            <CodeEditor code={code} setCode={setCode} />
+          </LineHighlightProvider>
+    </div>
         <div style={{width:'50%'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>
           <div>
@@ -146,3 +154,4 @@ function GraphsPage() {
 }
 
 export default GraphsPage
+
