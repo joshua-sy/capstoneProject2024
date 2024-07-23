@@ -58,7 +58,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             const lineRegex = /line:\s(\d+)/g;
             const lnRegex = /ln:\s(\d+)/g;
             let matchLineNum;
-            let newlineNumToHighlight: number[] = lineNumToHighlight;
+            let newlineNumToHighlight: number[] = [... lineNumToHighlight];
             nodeTextContentList.forEach(nodeText => {
               console.log('nodeText in loop', nodeText)
               if ((matchLineNum = lineRegex.exec(nodeText)) !== null) {
