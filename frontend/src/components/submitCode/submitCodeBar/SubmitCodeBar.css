@@ -1,4 +1,27 @@
-.submitCodeBarContainer {
-  background-color: #527595;
-  padding: 0.5% 3% 0.5% 3%;
+#submit-codeBar-container {
+  background-color: #f7f9fb;
+  padding: 2% 3% 2% 3%;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  display: flex;
+  height: 8%;
+  border-color: #d3d3d3;
+  border-style: solid;
+  border-width: 2px;
+}
+
+#submit-codeBar-compile-options-container {
+  width: 80%;
+}
+
+#submit-code-bar-button-container {
+  /* width: 100%;
+  display: flex;
+  justify-content: flex-end; */
+}
+#submit-code-bar-reset-btn-container {
+  margin-left: auto;
+}
+
+#submit-code-bar-run-btn-container {
+  margin-left: 2%;
 }

@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useEffect, useState } from "react";
 import { graphviz } from "d3-graphviz";
 import { Graphviz } from "graphviz-react";
+import styles from './dotGraphViewer.module.css';
 
 
 
@@ -8,7 +9,6 @@ interface DotGraphViewerProps {
   dotGraphString: string;
   lineNumToHighlight: number[];
   setlineNumToHighlight: (newLineNumToHighlight: number[]) => void
-  
 }
 const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   dotGraphString,
@@ -55,10 +55,14 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             nodeTextList.forEach((nodeText) => {
               nodeTextContentList.push(nodeText.textContent);
             });
-            const lineRegex = /line:\s(\d+)/g;
-            const lnRegex = /ln:\s(\d+)/g;
+            const lineRegex = /line*:*(\d+)/g;
+            const lnRegex = /ln*:*(\d+)/g;
+            const lnJsonRegex = /ln":\s*(\d+)/g;
+            const lineJsonRegex = /line":\s*(\d+)/g;
+
             let matchLineNum;
-            let newlineNumToHighlight: number[] = lineNumToHighlight;
+            let newlineNumToHighlight: number[] = [... lineNumToHighlight];
+            // check with svf-ex on how it would spit back out examples from comp6131
             nodeTextContentList.forEach(nodeText => {
               console.log('nodeText in loop', nodeText)
               if ((matchLineNum = lineRegex.exec(nodeText)) !== null) {
@@ -68,6 +72,13 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
                 newlineNumToHighlight.push(parseInt(matchLineNum[1], 10));
                 console.log('found num: ', parseInt(matchLineNum[1], 10));
               }
+              else if ((matchLineNum = lnJsonRegex.exec(nodeText)) !== null) {
+                newlineNumToHighlight.push(parseInt(matchLineNum[1], 10));
+                console.log('found num: ', parseInt(matchLineNum[1], 10));
+              } else if ((matchLineNum = lineJsonRegex.exec(nodeText)) !== null) {
+                newlineNumToHighlight.push(parseInt(matchLineNum[1], 10));
+                console.log('found num: ', parseInt(matchLineNum[1], 10));
+              } 
             });
             console.log('lineNumToHighlight', lineNumToHighlight);
 

@@ -54,7 +54,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     const style = document.createElement('style');
     style.innerHTML = `
       .line-decoration {
-        background: yellow;
+        background: blue;
+        color: black;
       }
     `;
     document.head.appendChild(style);
@@ -66,7 +67,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     <Editor
       height="90vh"
       language="c"
-      theme="vs-dark"
+      theme="vs-light"
       value={code}
       onMount={handleEditorDidMount}
     />
