@@ -39,13 +39,7 @@ function GraphsPage() {
       // justifyContent: 'space-between',      
     },
   };
-  const callGraph = `digraph "Call Graph" {
-    label="Call Graph";
-  
-    Node0x55fc43c981a0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 1 \\{fun: printf\\}}"];
-    Node0x55fc43c98620 [shape=record,shape=box,label="{CallGraphNode ID: 0 \\{fun: main\\}|{<s0>1}}"];
-    Node0x55fc43c98620:s0 -> Node0x55fc43c981a0[color=black];
-  }`;
+  const callGraph = "digraph \"Call Graph\" {\n\tlabel=\"Call Graph\";\n\n\tNode0x5cf12bc391c0 [shape=record,shape=Mrecord,label=\"{CallGraphNode ID: 1 \\{fun: printf\\}}\"];\n\tNode0x5cf12bc39640 [shape=record,shape=box,label=\"{CallGraphNode ID: 0 \\{fun: main\\}|{<s0>1}}\"];\n\tNode0x5cf12bc39640:s0 -> Node0x5cf12bc391c0[color=black];\n}\n";
 
 
   const icfgGraph = ` digraph "ICFG" {
@@ -150,27 +144,36 @@ int main(){
 
     const [terminalOutputString, setTerminalOutputString] = useState('Run the code to see the terminal output here');
     const [llvmIRString, setllvmIRString] = useState('Run the code to see the LLVM IR of your here');
+    const [graphs, setGraphs] = useState({});
 
 
     
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
+                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs}/>;
             case 'Terminal Output':
                 return <TerminalOutput terminalOutputString={terminalOutputString}/>;
             case 'CodeGPT':
                 return <CodeGPT />;
             case 'LLVMIR':
                 return <LLVMIR LLVMIRString={llvmIRString}/>;
-            default:
-                return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
+            // default:
+            //     return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
         }
     };
 
-    const submitCode = () => {
+    const submitCode = async () => {
       const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
-      submitCodeFetch(code, selectedCompileOptionString);
+      const response = await submitCodeFetch(code, selectedCompileOptionString);
+      const respGraphs = response.graphs;
+      const graphObj = {};
+      respGraphs.forEach(graph => {
+        graphObj[graph.name] = graph.graph;
+      });
+      setGraphs(graphObj);
+      console.log('graphObj', graphObj);
+      console.log('submit code response' ,response);
       setllvmIRString(`; ModuleID = './test3.ll'
 source_filename = "./test3.c"
 target datalayout = "e-m:o-i64:64-i128:128-n32:64-S128"

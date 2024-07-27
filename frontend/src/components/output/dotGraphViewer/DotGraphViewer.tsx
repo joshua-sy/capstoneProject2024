@@ -8,15 +8,18 @@ import styles from './dotGraphViewer.module.css';
 interface DotGraphViewerProps {
   dotGraphString: string;
   lineNumToHighlight: number[];
-  setlineNumToHighlight: (newLineNumToHighlight: number[]) => void
+  setlineNumToHighlight: (newLineNumToHighlight: number[]) => void;
+  graphObj: { [key: string]: string };
+
+
 }
 const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   dotGraphString,
   lineNumToHighlight,
   setlineNumToHighlight,
+  graphObj
 }) => {
   const [selectedNode, setSelectedNode] = useState(null);
-
   const data = `digraph "Call Graph" {
     label="Call Graph";
   
@@ -24,6 +27,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     Node0x55fc43c98620 [shape=record,shape=box,label="{CallGraphNode ID: 0 \\{fun: main\\}|{<s0>1}}"];
     Node0x55fc43c98620:s0 -> Node0x55fc43c981a0[color=black];
   }`;
+  const [currentGraph, setCurrentGraph] = useState(data);
+
+  
   const graphRef = useRef(null);
 
   const reset = useCallback(() => {
@@ -55,8 +61,12 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             nodeTextList.forEach((nodeText) => {
               nodeTextContentList.push(nodeText.textContent);
             });
-            const lineRegex = /line*:*(\d+)/g;
-            const lnRegex = /ln*:*(\d+)/g;
+            // const lineRegex = /line*:*(\d+)/g;
+            const lineRegex = /line:\s*(\d+)/g;
+
+            // const lnRegex = /ln*:*(\d+)/g;
+            const lnRegex = /ln:\s*(\d+)/g;
+
             const lnJsonRegex = /ln":\s*(\d+)/g;
             const lineJsonRegex = /line":\s*(\d+)/g;
 
@@ -91,25 +101,43 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         });
       }
     }
-  }, [dotGraphString]);
+  }, [currentGraph]);
+  console.log('graphObj in dotgraphviewer', graphObj);
+  // useEffect(() => {
+  //   setCurrentGraph(graphObj['callgraph.dot']);
+  // }, [graphObj]);
+  const graphBtnClick = (graphKey: string) => {
+    console.log('graphKey clicked btn', graphKey);
+    setCurrentGraph(graphObj[graphKey]);
+  }
+
   return (
     <>
-      <div style={{width: '50%'}}>
-        <div style={{ position: "absolute", }}>
-          <button onClick={reset}>Reset</button>
-        </div>
-        <div ref={graphRef} id="graphviz-container">
-        <Graphviz
-          dot={dotGraphString}
-          options={{ zoom: true, width: window.innerWidth, useWorker: false }}
-          // ref={ref}
-        />
-        </div>
-       
-        {selectedNode && <p>Selected Node: {selectedNode}</p>};
-
-      </div>
-     
+      {Object.keys(graphObj).length === 0 
+        ? (<p>Press Run</p>) 
+        :
+          (
+            <div style={{width: '50%'}}>
+              <div style={{ position: "absolute", }}>
+                <button onClick={reset}>Reset</button>
+              </div>
+              <div ref={graphRef} id="graphviz-container">
+              <Graphviz
+                dot={currentGraph}
+                options={{ zoom: true, width: window.innerWidth, useWorker: false }}
+                // ref={ref}
+              />
+              </div>
+              {
+                Object.keys(graphObj).map((graphKey) => (
+                  
+                  <button key={graphKey} onClick={() => graphBtnClick(graphKey)}>{graphKey.replace(/\.dot$/, '')}</button>
+                ))
+              }
+              {selectedNode && <p>Selected Node: {selectedNode}</p>};
+            </div>
+        )
+      }
     </>
   );
 }
