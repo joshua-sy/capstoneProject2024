@@ -140,7 +140,7 @@ int main(){
     );
 
     // const lineNumToHighlight: number[] = [];
-    const [lineNumToHighlight, setlineNumToHighlight] = useState<number[]>([]);
+    const [lineNumToHighlight, setlineNumToHighlight] = useState<Set<number>>(new Set());
 
     const [terminalOutputString, setTerminalOutputString] = useState('Run the code to see the terminal output here');
     const [llvmIRString, setllvmIRString] = useState('Run the code to see the LLVM IR of your here');
