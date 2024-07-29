@@ -38,3 +38,8 @@ Run npm run dev
 ```
 npm run dev
 ```
+
+# Contributors
+Sanjana Dinesh
+Joshua Sy
+Samiksha Anirudh
