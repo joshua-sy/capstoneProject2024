@@ -7,6 +7,7 @@ namespace api.models
     {
         public string Input { get; set; } = string.Empty;
         public string CompileOptions { get; set; } = string.Empty;
+        public List<string> ExtraExecutables { get; set; } = new List<string>();
     }
 
 }

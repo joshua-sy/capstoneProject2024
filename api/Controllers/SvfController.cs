@@ -29,7 +29,7 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RequestBody requestBody)
         {
-            await SetCompileOptions(requestBody.CompileOptions);
+            await SetCompileOptions(requestBody);
             await WriteToCFile(requestBody.Input);
             var output = await LaunchScript();
             var dotGraphs = GetDotGraphs();
@@ -66,9 +66,18 @@ namespace api.Controllers
             return System.IO.File.ReadAllText("example.ll");
         }
 
-        private static async Task SetCompileOptions(string compileOptions)
+        private static async Task SetCompileOptions(RequestBody requestBody)
         {
-            var analyzeBcScript = "clang " + compileOptions + " example.c -o example.ll\n./svf-ex example.ll";
+            var analyzeBcScript = "clang " + requestBody.CompileOptions + " example.c -o example.ll\n./svf-ex example.ll";
+
+            if (requestBody.ExtraExecutables != null)
+            {
+                foreach (var executable in requestBody.ExtraExecutables)
+                {
+                    analyzeBcScript += $"\n./{executable} example.ll";
+                }
+            }
+
             await System.IO.File.WriteAllTextAsync("analyzeBcFile.sh", analyzeBcScript);
         }
 
@@ -94,7 +103,8 @@ namespace api.Controllers
             string error = p.StandardError.ReadToEnd();
             p.WaitForExit();
             // await WaitForExitAsync(Process.Start(procInfo), new TimeSpan(0, 0, 30));// Start that process.
-            return !String.IsNullOrWhiteSpace(error) ? error : output;
+            //return !String.IsNullOrWhiteSpace(error) ? error : output;
+            return output;
         }
 
         private static Task<bool> WaitForExitAsync(Process process, TimeSpan timeout)
