@@ -40,6 +40,6 @@ npm run dev
 ```
 
 # Contributors
-Sanjana Dinesh
-Joshua Sy
+Sanjana Dinesh <br />
+Joshua Sy <br />
 Samiksha Anirudh
