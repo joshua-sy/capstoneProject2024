@@ -1,0 +1,25 @@
+.navBar {
+  background-color: #f2f2f2;
+  color: black;
+  padding: 10px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.navItem {
+  cursor: pointer;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.navItem:hover {
+  background-color: #e1e1e1;
+}

@@ -1,0 +1,11 @@
+.run-button {
+  background-color: green;
+  border-radius: 10px;
+  padding: 0.5% 3% 0.5% 3%;
+  color: white;
+  border-color: white;
+}
+
+.run-button:hover {
+  background-color: darkgreen;
+}
