@@ -460,19 +460,19 @@
     ]
   },
   "packageFolders": {
-    "/home/samiksha/.nuget/packages/": {}
+    "/Users/joshuasy/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/media/samiksha/Windows/Users/samik/Desktop/capstoneProject2024/api/api.csproj",
+      "projectUniqueName": "/Users/joshuasy/Code/codeGPT_thesis/capstoneProject2024/api/api.csproj",
       "projectName": "api",
-      "projectPath": "/media/samiksha/Windows/Users/samik/Desktop/capstoneProject2024/api/api.csproj",
-      "packagesPath": "/home/samiksha/.nuget/packages/",
-      "outputPath": "/media/samiksha/Windows/Users/samik/Desktop/capstoneProject2024/api/obj/",
+      "projectPath": "/Users/joshuasy/Code/codeGPT_thesis/capstoneProject2024/api/api.csproj",
+      "packagesPath": "/Users/joshuasy/.nuget/packages/",
+      "outputPath": "/Users/joshuasy/Code/codeGPT_thesis/capstoneProject2024/api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/samiksha/.nuget/NuGet/NuGet.Config"
+        "/Users/joshuasy/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -529,7 +529,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/248/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
