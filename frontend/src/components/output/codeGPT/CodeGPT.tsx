@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { doOpenAICall } from '../../services/openAIService';
 import styles from './codeGPT.module.css';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { coy as syntaxStyle } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-const CodeGPT = () => {
+const CodeGPT = ({ code }: { code: string }) => {
   const [messages, setMessages] = useState<{ role: string, content: string }[]>([]);
   const [gptInputQuery, setGptInputQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -39,15 +41,40 @@ const CodeGPT = () => {
     }
   }, [gptInputQuery]);
 
+  const handleSuggestionClick = (suggestion: string) => {
+    setGptInputQuery(suggestion);
+  };
+
+  const renderMessageContent = (content: string) => {
+    if (content.startsWith('```') && content.endsWith('```')) {
+      const codeContent = content.slice(3, -3).trim();
+      return (
+        <SyntaxHighlighter language="c" style={syntaxStyle} className={styles.syntaxHighlighter}>
+          {codeContent}
+        </SyntaxHighlighter>
+      );
+    }
+    return content;
+  };
+
   return (
     <div className={styles.codegptContainer}>
       <div className={styles.codegptResponse}>
         {messages.map((message, index) => (
           <div key={index} className={`${styles.message} ${styles[message.role]}`}>
             {message.role === 'assistant' && <div className={styles.assistantLabel}>Assistant</div>}
-            {message.content}
+            {renderMessageContent(message.content)}
           </div>
         ))}
+      </div>
+      <div className={styles.suggestions}>
+        <button
+          onClick={() => handleSuggestionClick(`Explain the following code:\n\n${code}`)}
+          className={styles.suggestionButton}
+        >
+          Explain the code
+        </button>
+        {/* Add more suggestions here as needed */}
       </div>
       <div className={styles.codegptInputContainer}>
         <textarea

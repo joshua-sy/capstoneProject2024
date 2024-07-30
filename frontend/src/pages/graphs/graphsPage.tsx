@@ -25,13 +25,6 @@ const compileOptions = [
   { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' },
 ]
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  dir?: string;
-  index: number;
-  value: number;
-}
-
 function GraphsPage() {
   const inlineStyles = {
     container: {
@@ -92,9 +85,9 @@ function GraphsPage() {
 	Node0x151f18480:s0 -> Node0x151f11ea0[style=solid,color=red];
 	Node0x151f13330 [shape=record,color=blue,label="{RetICFGNode19 \\{fun: main\\{ \\"ln\\": 26, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}\\}\\nRetPE: [Var50 \\<-- Var6]  \\n   %call = call i32 @test(i32 noundef 1, i32 noundef 2), !dbg !18 \\{ \\"ln\\": 26, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
 	Node0x151f13330 -> Node0x151f138f0[style=solid];
-	Node0x151f138f0 [shape=record,color=black,label="{IntraICFGNode20 \\{fun: main\\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}\\}\\n   ret i32 0, !dbg !19 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
+	Node0x151f138f0 [shape=record,color=black,label="{IntraICFGNode20 \\{fun: main\\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}\\}\\n   ret i32 0, !dbg !41 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
 	Node0x151f138f0 -> Node0x151f135b0[style=solid];
-	Node0x151f135b0 [shape=record,color=green,label="{FunExitICFGNode21 \\{fun: main\\{ \\"ln\\": 0, \\"cl\\": 0, \\"fl\\": \\"./test3.c\\" \\}\\}\\nPhiStmt: [Var47 \\<-- ([Var35, ICFGNode20],)]  \\n   ret i32 0, !dbg !19 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
+	Node0x151f135b0 [shape=record,color=green,label="{FunExitICFGNode21 \\{fun: main\\{ \\"ln\\": 0, \\"cl\\": 0, \\"fl\\": \\"./test3.c\\" \\}\\}\\nPhiStmt: [Var47 \\<-- ([Var35, ICFGNode20],)]  \\n   ret i32 0, !dbg !41 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
 }
 `
 
@@ -102,18 +95,6 @@ function GraphsPage() {
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
 
-  // const readFile = async () => {
-  //   const response = await fetch('/icfg.dot');
-  //   if (!response.ok) {
-  //     console.error('Failed to fetch the file:', response.statusText);
-  //     return '';
-  //   }
-  
-  //   const text = await response.text();
-  //   console.log('Contents of icfg.dot:', text);
-  //   return text;
-  // };
-  // const graph: string = await readFile();
   const [code, setCode] = useState(
     ` #include "stdbool.h"
 // CHECK: ^sat$
@@ -150,8 +131,6 @@ int main(){
 
     const [terminalOutputString, setTerminalOutputString] = useState('Run the code to see the terminal output here');
     const [llvmIRString, setllvmIRString] = useState('Run the code to see the LLVM IR of your here');
-
-
     
     const renderComponent = () => {
         switch (currentOutput) {
@@ -160,7 +139,7 @@ int main(){
             case 'Terminal Output':
                 return <TerminalOutput terminalOutputString={terminalOutputString}/>;
             case 'CodeGPT':
-                return <CodeGPT />;
+                return <CodeGPT code={code} />;
             case 'LLVMIR':
                 return <LLVMIR LLVMIRString={llvmIRString}/>;
             default:
@@ -287,20 +266,15 @@ attributes #2 = { "frame-pointer"="non-leaf" "no-trapping-math"="true" "stack-pr
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
           <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight}/>
         </div>
-
-
-
-        <div style={{width:'50%'}}>
+        <div style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>
-          <div>
+          <div style={{flexGrow: 1}}>
             {renderComponent()}
           </div>
-          {/* <TabOutput dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/> */}
         </div>
       </div>
-
     </>
   )
 }
 
-export default GraphsPage
+export default GraphsPage;
