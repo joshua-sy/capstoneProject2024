@@ -112,3 +112,7 @@ dist
 *.dot
 
 config/
+
+# Ignore build directories
+api/bin/
+api/obj/
