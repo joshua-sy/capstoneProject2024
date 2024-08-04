@@ -8,6 +8,7 @@ import CodeGPT from '../../components/output/codeGPT/CodeGPT';
 import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
 import submitCodeFetch from '../../api.ts';
 import TabOutput from '../../components/output/tabOutput/TabOutput';
+import D3Graph from '../../components/output/d3Graph/D3Graph.tsx';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -88,7 +89,7 @@ function GraphsPage() {
 
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
-
+  const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
     ` #include "stdbool.h"
 // CHECK: ^sat$
@@ -143,7 +144,9 @@ int main(){
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs}/>;
+                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails}/>;
+                // return <D3Graph dot={graphs['icfg.dot']} />;
+
             case 'Terminal Output':
                 return <TerminalOutput terminalOutputString={terminalOutputString}/>;
             case 'CodeGPT':
@@ -179,7 +182,7 @@ int main(){
       <div style={inlineStyles.container}>
         <div style={{width:'50%'}}>
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight}/>
+          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails}/>
         </div>
         <div style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>

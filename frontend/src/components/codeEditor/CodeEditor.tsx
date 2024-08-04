@@ -6,12 +6,14 @@ interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
   lineNumToHighlight: Set<number>;
+  lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
+
 }
 
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
@@ -65,27 +67,60 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     }
   };
 
+  // useEffect(() => {
+  //   console.log('oldHighlight', oldHighlight);
+  //   for (const lineNum of oldHighlight) {
+  //     console.log('removing highlight from lineNum', lineNum);
+  //     removeHighlightLine(lineNum);
+  //   }
+  //   // removeHighlightLine(oldHighlight);
+  //   decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
+  //   let i : number = 0;
+  //   console.log('lineNumTohighlight in code editor', lineNumToHighlight);
+  //   for (const lineNum of lineNumToHighlight) {
+  //     const colour = highlightColours[i % highlightColours.length];
+  //     console.log('highligting lineNum', lineNum, ' with colour ', colour);
+  //     highlightLine(lineNum, colour);
+  //     i++;
+  //   }
+
+  //   setOldHighlight(lineNumToHighlight);
+  //   // lineNumToHighlight.forEach(lineNum => {
+  //   //   highlightLine(lineNum, );
+  //   // });
+  // }, [lineNumToHighlight]);
+
   useEffect(() => {
+    console.log('triggering use effect for lineNumDetails');
     console.log('oldHighlight', oldHighlight);
     for (const lineNum of oldHighlight) {
       console.log('removing highlight from lineNum', lineNum);
       removeHighlightLine(lineNum);
     }
+    const oldLineHighlights:Set<number> = new Set<number>();
     // removeHighlightLine(oldHighlight);
     decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
-    let i : number = 0;
-    console.log('lineNumTohighlight in code editor', lineNumToHighlight);
-    for (const lineNum of lineNumToHighlight) {
-      const colour = highlightColours[i % highlightColours.length];
-      console.log('highligting lineNum', lineNum, ' with colour ', colour);
-      highlightLine(lineNum, colour);
-      i++;
+    console.log('lineNumDetails in code Editor', lineNumDetails);
+    for (const lineNum in lineNumDetails) {
+      const colour = lineNumDetails[lineNum]['colour'].slice(1).toLowerCase();
+      highlightLine(parseInt(lineNum), colour);
+      oldLineHighlights.add(parseInt(lineNum));
     }
-    setOldHighlight(lineNumToHighlight);
+    
+    // let i : number = 0;
+    // console.log('lineNumTohighlight in code editor', lineNumToHighlight);
+    // for (const lineNum of lineNumToHighlight) {
+    //   const colour = highlightColours[i % highlightColours.length];
+    //   console.log('highligting lineNum', lineNum, ' with colour ', colour);
+    //   highlightLine(lineNum, colour);
+    //   i++;
+    // }
+
+    setOldHighlight(oldLineHighlights);
     // lineNumToHighlight.forEach(lineNum => {
     //   highlightLine(lineNum, );
     // });
-  }, [lineNumToHighlight]);
+  }, [lineNumDetails]);
 
   /*
   d9f0e9
