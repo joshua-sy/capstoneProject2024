@@ -91,32 +91,10 @@ function GraphsPage() {
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    ` #include "stdbool.h"
-// CHECK: ^sat$
-
-extern int nd(void);
-
-extern void svf_assert(bool);
-
-int test(int a, int b){
-    int x,y;
-    x=1; y=1;
-
-    if (a > b) {
-        x++;
-        y++;
-        svf_assert (x == y);
-    } else {
-        x++;
-        svf_assert (x == 2);
-    }
-    return 0;
-}
-
-int main(){
-    int a = 1;
-    int b = 2;
-    test(a,b);
+    ` #include <stdio.h>
+int main() {
+    // printf() displays the string inside quotation
+    printf("Hello, World!");
     return 0;
 }`
     );
