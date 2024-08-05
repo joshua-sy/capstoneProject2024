@@ -86,7 +86,7 @@ function GraphsPage() {
 }
 `
 
-
+  const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
@@ -122,7 +122,7 @@ int main() {
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails}/>;
+                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails} lineNumDetails={lineNumDetails} currCodeLineNum={currCodeLineNum}/>;
                 // return <D3Graph dot={graphs['icfg.dot']} />;
 
             case 'Terminal Output':
@@ -160,7 +160,7 @@ int main() {
       <div style={inlineStyles.container}>
         <div style={{width:'50%'}}>
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails}/>
+          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails} setCurrCodeLineNum={setCurrCodeLineNum}/>
         </div>
         <div style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>

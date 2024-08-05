@@ -8,13 +8,14 @@ interface CodeEditorProps {
   setCode: (code: string) => void;
   lineNumToHighlight: Set<number>;
   lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
+  setCurrCodeLineNum: (lineNum: number) => void;
 
 }
 
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
@@ -33,6 +34,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     editor.onDidChangeModelContent(() => {
       const value = editor.getValue();
       setCode(value);
+    });
+
+    // Sets the current line number when the cursor position changes
+    editor.onDidChangeCursorPosition((event) => {
+      const lineNum = event.position.lineNumber;
+      console.log('cursor changed to lineNum', lineNum);
+      setCurrCodeLineNum(lineNum);
     });
   };
 

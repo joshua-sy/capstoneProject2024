@@ -10,7 +10,9 @@ interface DotGraphViewerProps {
   lineNumToHighlight: Set<number>;
   setlineNumToHighlight: (newLineNumToHighlight: Set<number>) => void;
   graphObj: { [key: string]: string };
+  lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
   setLineNumDetails: (newLineNumDetails: { [key: string]: { nodes: string[], colour: string } }) => void;
+  currCodeLineNum: number;
 
 
 }
@@ -22,7 +24,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   lineNumToHighlight,
   setlineNumToHighlight,
   graphObj,
-  setLineNumDetails
+  lineNumDetails,
+  setLineNumDetails,
+  currCodeLineNum
 }) => {
   const [selectedNode, setSelectedNode] = useState(null);
   const data = `digraph "Call Graph" {
@@ -405,8 +409,113 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     } else {
       console.log('No content found within the curly braces.');
     }
+  }
+
+  useEffect(() => {
+    if (currCodeLineNum > 0 && currCodeLineNum in lineNumDetails) {
+      changeTextColour();
+    }
+  }, [currCodeLineNum]);
+
+  const changeTextColour = () => {
+    // const nodePattern = /Node\w+\s*\[\s*shape=record\s*,\s*color=\w+\s*,\s*label="((?:\\.|[^"\\])*)"\s*\];/g;
+    // const nodePattern = /Node\w+\s*\[shape=record,\s*[^,]*,\s*label="([^"]*)"\];/g;
+    // const nodePattern = /Node[\w\d]+?\s*\[shape=+?,[\s\S]*,\slabel="([^"]*)"\];/g;
+    const graphContentPattern = /digraph\s*".*?"\s*{([\s\S]*)}/;
+    // Uncomment this if you want a 5 second delay
+    // const oldGraphString = graphString;
+    let newGraphString = graphString;
+    while (newGraphString.includes(', fontcolor=red')) {
+      newGraphString = newGraphString.replace(', fontcolor=red', '');
+    } 
+
+    // Execute the regex to find a match
+    const match = graphContentPattern.exec(graphString);
+    console.log('old graphString', graphString);
+
+    if (match) {
+      const graphContent = match[1].trim();
+      console.log('graphContent' ,graphContent);
+      const splitGraphContent = graphContent.split('\n\t');
+
+      // Filter out any empty strings that might occur from the split
+      const removedEmptyStrings = splitGraphContent.filter(part => part.trim() !== '');
+      
+      /* Removing title of the graph
+      e.g "label="Call Graph";"
+      */
+      removedEmptyStrings.shift();
 
 
+      console.log('non empty parts',removedEmptyStrings);
+
+      /*
+      Removing edges from the list
+      */
+      // const edgePattern = /(\w+)\s+->\s+(\w+)/g;
+      // Removes most edges, sometimes leaves some edges which can be seen in icfg.dot
+      const edgePattern = /([\w:]+)\s+->\s+([\w:]+)/g;
+
+      const nodesOnly = removedEmptyStrings.filter(item => !edgePattern.test(item));
+
+      let matchLineNum;
+      // console.log('newlineNumToHighlight BEFORE', newlineNumToHighlight);
+
+      // check with svf-ex on how it would spit back out examples from comp6131
+      const modifiedNodes = [];
+      // const notWorking = "Node0x5cf12bc4a740 [shape=record,color=black,label=\"{NodeID: 7\nIntraBlockNode ID: 7      ret i32 0, !dbg !16 \{ ln: 5  cl: 4  fl: example.c \}    \{fun: main\}}\"];"
+      nodesOnly.forEach(originalNode => {
+        console.log('original node in loop', originalNode);
+        // if (originalNode === notWorking) {
+        //   console.log('hello');
+        // }
+        if (originalNode.includes('shape')) {
+          lineNumDetails[currCodeLineNum]['nodes'].forEach(nodeId => {
+            if (originalNode.includes(nodeId)) {
+              const addingFontColour = ", fontcolor=red];"
+              const modifiedString = originalNode.substring(0, originalNode.length - 2) + addingFontColour;
+              modifiedNodes.push({
+                original: originalNode,
+                modified: modifiedString
+              });
+            }
+          });
+        }
+        modifiedNodes.forEach((moddedNode) => {
+          console.log(moddedNode['original'], ' does substring exists for ',newGraphString.includes(moddedNode['original']));
+          newGraphString = newGraphString.replace(moddedNode['original'], moddedNode['modified']);
+          console.log(moddedNode['modified'], ' does modified exists for ',newGraphString.includes(moddedNode['modified']));
+
+        });
+        if (graphString !== newGraphString) {
+          setGraphString(newGraphString);
+        }
+        console.log('new graphString', newGraphString);
+        
+        // If we want to return back to normal after 5 seconds
+        // setTimeout(() => {
+        //   setGraphString(oldGraphString);
+        // }, 5000); // 5000 milliseconds = 5 seconds
+
+      });
+      
+      
+
+      // const exampleString = "Node0x5cf12bc4a740 [shape=record,color=black,label=\"{NodeID: 7\nIntraBlockNode ID: 7      ret i32 0, !dbg !16 \{ ln: 5  cl: 4  fl: example.c \}    \{fun: main\}}\"];";
+      
+      // if ((matchLineNum = lineRegex.exec(exampleString)) !== null) {
+      //   console.log('it works for example');
+      // }
+      // else if ((matchLineNum = lnRegex.exec(exampleString)) !== null) {
+      //   console.log('it works for example');
+      // }  
+      console.log('modifiedNodes', modifiedNodes);
+
+
+
+    } else {
+      console.log('No content found within the curly braces.');
+    }
   }
   const graphBtnClick = (graphKey: string) => {
     console.log('graphKey clicked btn', graphKey);
