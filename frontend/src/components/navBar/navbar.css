@@ -1,0 +1,21 @@
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 1% 1% 1% 1%;
+}
+
+#settings-icon {
+  cursor: pointer;
+}
+
+#svf-logo {
+  width: 2%;
+  height: 2%;
+  display: block;
+}
+
+#webSVF-home-link {
+  /* text-decoration: none;
+  color: inherit; */
+  display: inline-block;
+}

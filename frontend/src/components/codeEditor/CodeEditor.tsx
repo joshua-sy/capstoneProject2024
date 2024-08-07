@@ -9,13 +9,14 @@ interface CodeEditorProps {
   lineNumToHighlight: Set<number>;
   lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
   setCurrCodeLineNum: (lineNum: number) => void;
+  codeFontSize: number;
 
 }
 
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
@@ -27,6 +28,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     editorRef.current = editor;
     decorationsRef.current = editor.createDecorationsCollection();
     setDecorationsCollection(editor.createDecorationsCollection());
+    // editor.updateOptions({ fontSize });
 
     // // Highlight line 3 after the editor has mounted
     // highlightLine(3);
@@ -290,9 +292,6 @@ d5f1ec
       .line-decoration-text-e9d6e7 { background: #e9d6e7; color: red !important;}
       .line-decoration-text-edf8ea { background: #edf8ea; color: red !important;}
       .line-decoration-text-fff8cf { background: #fff8cf; color: red !important;}
-
-
-
     `;
     document.head.appendChild(style);
   }, []);
@@ -306,6 +305,7 @@ d5f1ec
       theme="vs-light"
       value={code}
       onMount={handleEditorDidMount}
+      options={{ fontSize: codeFontSize }}
     />
 
     </div>

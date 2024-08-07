@@ -31,15 +31,19 @@ const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
     <>
       <div id='submit-codeBar-container'>
         <div id='submit-codeBar-compile-options-container'>
-          <h4>Enter your compile options: </h4>
+          <h5>Enter your compile options: </h5>
           <CompileOptionsMenu compileOptions={compileOptions} setSelectedCompileOptions={setSelectedCompileOptions} selectedCompileOptions={selectedCompileOptions}/>
         </div>
        <div id='submit-code-bar-button-container'>
           <div>
-            <button className='reset-button' onClick={resetCompileOptions}>Reset Default</button> 
+            <Button size='small' variant='contained' color='secondary' onClick={resetCompileOptions} startIcon={<RestartAltIcon />}>
+              Reset
+            </Button>
           </div>
           <div>
-            <button className='run-button' onClick={submitEvent}>Run</button>
+            <Button size='small'  variant='contained' onClick={submitEvent} startIcon={<PlayArrowIcon />}>
+              Run
+            </Button>
           </div>
        </div>
 

@@ -1,7 +1,9 @@
 import React, { useCallback, useRef, useEffect, useState } from "react";
 import { graphviz } from "d3-graphviz";
 import { Graphviz } from "graphviz-react";
-import styles from './dotGraphViewer.module.css';
+import * as d3 from 'd3';
+import './dotGraphViewer.css';
+
 
 
 
@@ -39,17 +41,30 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     Node0x55fc43c98620:s0 -> Node0x55fc43c981a0[color=black];
   }`;
   const [currentGraph, setCurrentGraph] = useState('');
-  const [graphString, setGraphString] = useState(data);
-
+  const [graphString, setGraphString] = useState('');
+  const graphWidth = window.innerWidth * 0.5;
+  console.log('graphWidth', graphWidth);
+  const graphHeight = window.innerHeight * 0.85;
   
   const graphRef = useRef(null);
 
-  const reset = useCallback(() => {
+  // const reset = useCallback(() => {
+  //   if (graphRef.current) {
+  //     const { id } = graphRef.current;
+  //     graphviz(`#${id}`).resetZoom();
+  //   }
+  // }, [graphRef]);
+
+  const resetZoom = () => {
     if (graphRef.current) {
-      const { id } = graphRef.current;
-      graphviz(`#${id}`).resetZoom();
+      console.log('resetting zoom');
+      const svg = d3.select(graphRef.current).select('svg');
+      const zoom = d3.zoom().on('zoom', null); // Remove existing zoom behavior
+      svg.call(zoom.transform, d3.zoomIdentity); // Reset zoom to identity (no zoom)
     }
-  }, [graphRef]);
+  };
+
+
 
   // add an event listener to each node so an event triggers when i click on it 
   useEffect(() => {
@@ -707,37 +722,69 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   }
   const graphBtnClick = (graphKey: string) => {
     console.log('graphKey clicked btn', graphKey);
-    setGraphString(graphObj[graphKey]);
-    setCurrentGraph(graphKey);
+    if (graphKey !== currentGraph) {
+      setGraphString(graphObj[graphKey]);
+      setCurrentGraph(graphKey);
+    }
   }
+  const containerRef = useRef(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+  }, []);
+
+
 
   return (
     <>
-      {Object.keys(graphObj).length === 0 
-        ? (<p>Press Run</p>) 
-        :
-          (
-            <div style={{width: '50%'}}>
-              <div style={{ position: "absolute", }}>
-                <button onClick={reset}>Reset</button>
-              </div>
-              <div ref={graphRef} id="graphviz-container">
+      {/* {Object.keys(graphObj).length === 0 && graphString !== '' */}
+        {/* ? (<p>Press Run</p>) 
+        : */}
+        {/* ( */}
+          <div className="graph-container" >
+            <div id="graph-button-container">
+            {
+              Object.keys(graphObj).map((graphKey) => (
+                
+                <button 
+                  className={`graph-button ${currentGraph === graphKey ? 'selected' : ''}`}  
+                  key={graphKey} 
+                  onClick={() => graphBtnClick(graphKey)}>
+                    {graphKey.replace(/\.dot$/, '')}
+                </button>
+              ))
+            }
+            </div>
+            
+            {/* <div style={{ position: "absolute", }}>
+              <button onClick={resetZoom}>Reset</button>
+            </div> */}
+            <div ref={graphRef} id="graphviz-container">
+            {graphString ? (
               <Graphviz
                 dot={graphString}
-                options={{ zoom: true, width: window.innerWidth, useWorker: false }}
+                options={{ 
+                  zoom: true, 
+                  width: graphWidth,
+                  height: graphHeight,
+                  useWorker: false,
+                  // zoomScaleExtent: [0.5, 2],
+                  // zoomTranslateExtent: [[-1000, -1000], [1000, 1000]],
+                }}
                 // ref={ref}
               />
-              </div>
-              {
-                Object.keys(graphObj).map((graphKey) => (
-                  
-                  <button key={graphKey} onClick={() => graphBtnClick(graphKey)}>{graphKey.replace(/\.dot$/, '')}</button>
-                ))
-              }
-              {selectedNode && <p>Selected Node: {selectedNode}</p>};
+            ) : (
+            <p>No graph to display</p>
+          )}
             </div>
-        )
-      }
+            
+          </div>
+        {/* ) */}
+      {/* // } */}
     </>
   );
 }

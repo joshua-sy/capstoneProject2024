@@ -9,6 +9,9 @@ import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
 import submitCodeFetch from '../../api.ts';
 import TabOutput from '../../components/output/tabOutput/TabOutput';
 import D3Graph from '../../components/output/d3Graph/D3Graph.tsx';
+import NavBar from '../../components/navBar/Navbar.tsx';
+import SettingsModal from '../../components/settingsModal/SettingsModal.tsx';
+import './graphsPage.css';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -154,15 +157,21 @@ int main() {
     const resetDefault = () => {
       setSelectedCompileOptions([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
     }
+    const [openSettings, setOpenSettings] = React.useState(false);
+    const handleOpenSettings = () => setOpenSettings(true);
+    const handleCloseSettings = () => setOpenSettings(false);
+    const [codeFontSize, setCodeFontSize] = useState(16);
 
   return (
     <>
-      <div style={inlineStyles.container}>
-        <div style={{width:'50%'}}>
+      <SettingsModal open={openSettings} handleClose={handleCloseSettings} codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize}/>
+      <NavBar openSettings={handleOpenSettings}/>
+      <div id='graph-page-container' style={inlineStyles.container}>
+        <div id='graph-page-code-container' style={{width:'50%'}}>
           <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails} setCurrCodeLineNum={setCurrCodeLineNum}/>
+          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails} setCurrCodeLineNum={setCurrCodeLineNum} codeFontSize={codeFontSize}/>
         </div>
-        <div style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
+        <div id='graph-page-output-container' style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>
           <div style={{flexGrow: 1}}>
             {renderComponent()}

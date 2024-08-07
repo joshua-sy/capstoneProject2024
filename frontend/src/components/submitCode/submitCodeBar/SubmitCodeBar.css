@@ -3,10 +3,11 @@
   padding: 2% 3% 2% 3%;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: flex;
+  align-items: center;
   height: 8%;
-  border-color: #d3d3d3;
-  border-style: solid;
-  border-width: 2px;
+  /* border-color: #d3d3d3; */
+  /* border-style: solid;
+  border-width: 2px; */
 }
 
 #submit-codeBar-compile-options-container {
@@ -14,9 +15,7 @@
 }
 
 #submit-code-bar-button-container {
-  /* width: 100%;
-  display: flex;
-  justify-content: flex-end; */
+  padding: 2% 2% 2% 2%;
 }
 #submit-code-bar-reset-btn-container {
   margin-left: auto;
@@ -24,4 +23,11 @@
 
 #submit-code-bar-run-btn-container {
   margin-left: 2%;
+}
+
+.run-button {
+  flex: display;
+  padding: 2px 5px 2px 5px;
+  justify-content: center;
+  align-items: center;
 }
