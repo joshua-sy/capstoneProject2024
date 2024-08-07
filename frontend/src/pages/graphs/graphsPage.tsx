@@ -122,7 +122,7 @@ int main() {
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails} lineNumDetails={lineNumDetails} currCodeLineNum={currCodeLineNum}/>;
+                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails} lineNumDetails={lineNumDetails} currCodeLineNum={currCodeLineNum} code={code}/>;
                 // return <D3Graph dot={graphs['icfg.dot']} />;
 
             case 'Terminal Output':

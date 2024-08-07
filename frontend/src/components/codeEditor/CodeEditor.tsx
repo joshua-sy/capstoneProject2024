@@ -164,11 +164,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     // }
     if (decorationsRef !== null && decorationsRef.current !== null) {
       const newDecorations = [];
-      const selectedLineNum = Array.from(lineNumToHighlight)[lineNumToHighlight.size - 1];
+      // const selectedLineNum = Array.from(lineNumToHighlight)[lineNumToHighlight.size - 1];
+      // lineNumToHighlight.forEach(lineNum => {
+
+      // });
       for (const lineNum in lineNumDetails) {
         const colour = lineNumDetails[lineNum]['colour'].slice(1).toLowerCase();
         let decoration = {};
-        if (selectedLineNum === parseInt(lineNum)) {
+        // if (selectedLineNum === parseInt(lineNum)) {
+        if (lineNumToHighlight.has(parseInt(lineNum))) {
           decoration = {
             range: new monaco.Range(parseInt(lineNum), 1, parseInt(lineNum), 1),
             options: {
