@@ -29,6 +29,12 @@ const compileOptions = [
   { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' },
 ]
 
+const executableOptions = [
+  { value: 'mta', label: 'mta' },
+  { value: 'saber', label: 'saber' },
+  { value: 'ae', label: 'ae' },
+]
+
 function GraphsPage() {
   const inlineStyles = {
     container: {
@@ -92,12 +98,37 @@ function GraphsPage() {
   const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
+  const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([executableOptions[0], executableOptions[1], executableOptions[2]]);
+
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    ` #include <stdio.h>
-int main() {
-    // printf() displays the string inside quotation
-    printf("Hello, World!");
+    `
+#include "stdbool.h"
+// CHECK: ^sat$
+
+extern int nd(void);
+
+extern void svf_assert(bool);
+
+int test(int a, int b){
+    int x,y;
+    x=1; y=1;
+
+    if (a > b) {
+        x++;
+        y++;
+        svf_assert (x == y);
+    } else {
+        x++;
+        svf_assert (x == 2);
+    }
+    return 0;
+}
+
+int main(){
+    int a = 1;
+    int b = 2;
+    test(a,b);
     return 0;
 }`
     );
@@ -141,7 +172,8 @@ int main() {
 
     const submitCode = async () => {
       const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
-      const response = await submitCodeFetch(code, selectedCompileOptionString);
+      const selectedExecutableOptionsList = selectedExecutableOptions.map(option => option.value);
+      const response = await submitCodeFetch(code, selectedCompileOptionString, selectedExecutableOptionsList);
       const respGraphs = response.graphs;
       const graphObj = {};
       respGraphs.forEach(graph => {
@@ -168,7 +200,7 @@ int main() {
       <NavBar openSettings={handleOpenSettings}/>
       <div id='graph-page-container' style={inlineStyles.container}>
         <div id='graph-page-code-container' style={{width:'50%'}}>
-          <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
+          <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions} executableOptions={executableOptions} selectedExecutableOptions={selectedExecutableOptions} setSelectedExecutableOptions={setSelectedExecutableOptions}/>
           <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails} setCurrCodeLineNum={setCurrCodeLineNum} codeFontSize={codeFontSize}/>
         </div>
         <div id='graph-page-output-container' style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
