@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   background-color: #ffffff;
-  padding: 20px;
+  /* padding: 20px; */
   box-sizing: border-box;
 }
 
@@ -17,9 +17,9 @@
 .stickyContainer {
   position: sticky;
   bottom: 0;
-  background-color: #ffffff;
+  background-color: #f7f9fb;
   z-index: 1;
-  padding-bottom: 20px;
+  padding: 20px;
 }
 
 .suggestionCategory {
