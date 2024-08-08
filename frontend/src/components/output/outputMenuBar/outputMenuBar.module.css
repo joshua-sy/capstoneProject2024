@@ -3,7 +3,6 @@
   color: black;
   padding: 10px;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-
 }
 
 .navList {
@@ -22,4 +21,9 @@
 
 .navItem:hover {
   background-color: #e1e1e1;
+}
+
+.active {
+  background-color: #007bff;
+  color: white;
 }
