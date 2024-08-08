@@ -160,11 +160,11 @@ int main(){
                 // return <D3Graph dot={graphs['icfg.dot']} />;
 
             case 'Terminal Output':
-                return <TerminalOutput terminalOutputString={terminalOutputString}/>;
+                return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={terminalOutputFontSize}/>;
             case 'CodeGPT':
                 return <CodeGPT code={code} />;
             case 'LLVMIR':
-                return <LLVMIR LLVMIRString={llvmIRString}/>;
+                return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={llvmFontSize}/>;
             // default:
             //     return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
         }
@@ -194,9 +194,13 @@ int main(){
     const handleCloseSettings = () => setOpenSettings(false);
     const [codeFontSize, setCodeFontSize] = useState(16);
 
+    const [llvmFontSize, setllvmFontSize] = useState(16);
+    const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
+
+
   return (
     <>
-      <SettingsModal open={openSettings} handleClose={handleCloseSettings} codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize}/>
+      <SettingsModal open={openSettings} handleClose={handleCloseSettings} codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize} llvmIRFontSize={llvmFontSize} setLLVMIRFontSize={setllvmFontSize} terminalOutputFontSize={terminalOutputFontSize} setTerminalOutputFontSize={setTerminalOutputFontSize}/>
       <NavBar openSettings={handleOpenSettings}/>
       <div id='graph-page-container' style={inlineStyles.container}>
         <div id='graph-page-code-container' style={{width:'50%'}}>

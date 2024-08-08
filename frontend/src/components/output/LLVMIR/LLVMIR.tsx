@@ -4,9 +4,11 @@ import * as monaco from 'monaco-editor';
 
 interface LLVMIRProps {
   LLVMIRString: string;
+  llvmFontSize: number;
+
 }
 
-const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString}) => {
+const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, llvmFontSize}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
 
@@ -28,6 +30,7 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString}) => {
       theme="vs-light"
       value={LLVMIRString}
       onMount={handleEditorDidMount}
+      options={{ fontSize: llvmFontSize }}
     />
     </div>
     </>
