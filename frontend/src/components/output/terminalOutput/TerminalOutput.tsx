@@ -4,9 +4,11 @@ import * as monaco from 'monaco-editor';
 
 interface TerminalOutputProps {
   terminalOutputString: string;
+  terminalOutputFontSize: number;
+
 }
 
-const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString}) => {
+const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString, terminalOutputFontSize}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
 
@@ -28,6 +30,8 @@ const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString}) =
       theme="vs-light"
       value={terminalOutputString}
       onMount={handleEditorDidMount}
+      options={{ fontSize: terminalOutputFontSize }}
+
     />
     </div>
     </>

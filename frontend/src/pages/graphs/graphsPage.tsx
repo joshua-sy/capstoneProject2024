@@ -8,6 +8,10 @@ import CodeGPT from '../../components/output/codeGPT/CodeGPT';
 import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
 import submitCodeFetch from '../../api.ts';
 import TabOutput from '../../components/output/tabOutput/TabOutput';
+import D3Graph from '../../components/output/d3Graph/D3Graph.tsx';
+import NavBar from '../../components/navBar/Navbar.tsx';
+import SettingsModal from '../../components/settingsModal/SettingsModal.tsx';
+import './graphsPage.css';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -23,6 +27,12 @@ const compileOptions = [
   { value: '-pipe', label: '-pipe' },
   { value: '--help', label: '--help' },
   { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' },
+]
+
+const executableOptions = [
+  { value: 'mta', label: 'mta' },
+  { value: 'saber', label: 'saber' },
+  { value: 'ae', label: 'ae' },
 ]
 
 function GraphsPage() {
@@ -85,12 +95,15 @@ function GraphsPage() {
 }
 `
 
-
+  const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
+  const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([executableOptions[0], executableOptions[1], executableOptions[2]]);
 
+  const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    ` #include "stdbool.h"
+    `
+#include "stdbool.h"
 // CHECK: ^sat$
 
 extern int nd(void);
@@ -143,13 +156,15 @@ int main(){
     const renderComponent = () => {
         switch (currentOutput) {
             case 'Graph':
-                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs}/>;
+                return <DotGraphViewer dotGraphString={callGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight} graphObj={graphs} setLineNumDetails={setLineNumDetails} lineNumDetails={lineNumDetails} currCodeLineNum={currCodeLineNum} code={code}/>;
+                // return <D3Graph dot={graphs['icfg.dot']} />;
+
             case 'Terminal Output':
-                return <TerminalOutput terminalOutputString={terminalOutputString}/>;
+                return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={terminalOutputFontSize}/>;
             case 'CodeGPT':
                 return <CodeGPT code={code} />;
             case 'LLVMIR':
-                return <LLVMIR LLVMIRString={llvmIRString}/>;
+                return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={llvmFontSize}/>;
             // default:
             //     return <DotGraphViewer dotGraphString={icfgGraph} lineNumToHighlight={lineNumToHighlight} setlineNumToHighlight={setlineNumToHighlight}/>;
         }
@@ -157,7 +172,8 @@ int main(){
 
     const submitCode = async () => {
       const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
-      const response = await submitCodeFetch(code, selectedCompileOptionString);
+      const selectedExecutableOptionsList = selectedExecutableOptions.map(option => option.value);
+      const response = await submitCodeFetch(code, selectedCompileOptionString, selectedExecutableOptionsList);
       const respGraphs = response.graphs;
       const graphObj = {};
       respGraphs.forEach(graph => {
@@ -173,15 +189,25 @@ int main(){
     const resetDefault = () => {
       setSelectedCompileOptions([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
     }
+    const [openSettings, setOpenSettings] = React.useState(false);
+    const handleOpenSettings = () => setOpenSettings(true);
+    const handleCloseSettings = () => setOpenSettings(false);
+    const [codeFontSize, setCodeFontSize] = useState(16);
+
+    const [llvmFontSize, setllvmFontSize] = useState(16);
+    const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
+
 
   return (
     <>
-      <div style={inlineStyles.container}>
-        <div style={{width:'50%'}}>
-          <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions}/>
-          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight}/>
+      <SettingsModal open={openSettings} handleClose={handleCloseSettings} codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize} llvmIRFontSize={llvmFontSize} setLLVMIRFontSize={setllvmFontSize} terminalOutputFontSize={terminalOutputFontSize} setTerminalOutputFontSize={setTerminalOutputFontSize}/>
+      <NavBar openSettings={handleOpenSettings}/>
+      <div id='graph-page-container' style={inlineStyles.container}>
+        <div id='graph-page-code-container' style={{width:'50%'}}>
+          <SubmitCodeBar submitEvent={submitCode} resetCompileOptions={resetDefault} compileOptions={compileOptions} selectedCompileOptions={selectedCompileOptions} setSelectedCompileOptions={setSelectedCompileOptions} executableOptions={executableOptions} selectedExecutableOptions={selectedExecutableOptions} setSelectedExecutableOptions={setSelectedExecutableOptions}/>
+          <CodeEditor code={code} setCode={setCode} lineNumToHighlight={lineNumToHighlight} lineNumDetails={lineNumDetails} setCurrCodeLineNum={setCurrCodeLineNum} codeFontSize={codeFontSize}/>
         </div>
-        <div style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
+        <div id='graph-page-output-container' style={{width:'50%', display: 'flex', flexDirection: 'column'}}>
           <OutputMenuBar setCurrentOutput={setCurrentOutput}/>
           <div style={{flexGrow: 1}}>
             {renderComponent()}

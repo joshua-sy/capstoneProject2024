@@ -11,12 +11,14 @@ using System.Net;
 // using Newtonsoft.Json;
 using System.Text;
 using api.models;
+using Microsoft.AspNetCore.Cors;
 
 namespace api.Controllers
 {
     
     [Route("api/controller")]
     [ApiController]
+    [EnableCors("AllowSpecificOrigin")]
     public class SvfController : ControllerBase
     {
         private readonly ILogger<SvfController> _logger;

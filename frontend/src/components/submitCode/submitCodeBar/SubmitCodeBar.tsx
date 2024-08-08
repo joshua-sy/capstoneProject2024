@@ -4,9 +4,16 @@ import CompileOptionsMenu from '../compileOptionsMenu/compileOptionsMenu';
 import Button from '@mui/material/Button';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import ExecutableOptionsMenu from '../executablesOptionsMenu/executablesOptionsMenu';
+
 
 
 interface CompileOption {
+  value: string;
+  label: string;
+}
+
+interface executableOption {
   value: string;
   label: string;
 }
@@ -18,6 +25,10 @@ interface SubmitCodeBarProps {
   compileOptions: CompileOption[];
   setSelectedCompileOptions: (selectedCompileOptions: CompileOption[]) => void;
   selectedCompileOptions: CompileOption[];
+  setSelectedExecutableOptions: (selectedCompileOptions: executableOption[]) => void;
+  selectedExecutableOptions: executableOption[];
+  executableOptions: executableOption[];
+
 }
 
 const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
@@ -26,20 +37,30 @@ const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
   compileOptions,
   setSelectedCompileOptions,
   selectedCompileOptions,
+  setSelectedExecutableOptions,
+  selectedExecutableOptions,
+  executableOptions,
+
 }) => {
   return (
     <>
       <div id='submit-codeBar-container'>
         <div id='submit-codeBar-compile-options-container'>
-          <h4>Enter your compile options: </h4>
+          <h5>Enter your compile options: </h5>
           <CompileOptionsMenu compileOptions={compileOptions} setSelectedCompileOptions={setSelectedCompileOptions} selectedCompileOptions={selectedCompileOptions}/>
+          <h5>Select executable options: </h5>
+          <ExecutableOptionsMenu setSelectedExecutableOptions={setSelectedExecutableOptions} selectedExecutableOptions={selectedExecutableOptions} executableOptions={executableOptions}/>
         </div>
        <div id='submit-code-bar-button-container'>
           <div>
-            <button className='reset-button' onClick={resetCompileOptions}>Reset Default</button> 
+            <Button size='small' variant='contained' color='secondary' onClick={resetCompileOptions} startIcon={<RestartAltIcon />}>
+              Reset
+            </Button>
           </div>
           <div>
-            <button className='run-button' onClick={submitEvent}>Run</button>
+            <Button size='small'  variant='contained' onClick={submitEvent} startIcon={<PlayArrowIcon />}>
+              Run
+            </Button>
           </div>
        </div>
 
