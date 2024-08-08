@@ -9,7 +9,7 @@ export const doOpenAICall = async (messages, temperature = 0.5, model = 'gpt-3.5
     model,
     messages,
     temperature,
-    max_tokens: 150,
+    max_tokens: 1024,
   }, {
     headers: {
       'Authorization': `Bearer ${API_KEY}`,
