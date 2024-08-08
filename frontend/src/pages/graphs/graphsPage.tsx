@@ -96,7 +96,7 @@ function GraphsPage() {
   const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
-  const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([executableOptions[0], executableOptions[1], executableOptions[2]]);
+  const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([]);
 
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
@@ -190,6 +190,7 @@ int main(){
 
   const resetDefault = () => {
     setSelectedCompileOptions([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
+    setSelectedExecutableOptions([]);
   };
 
   const [openSettings, setOpenSettings] = React.useState(false);
