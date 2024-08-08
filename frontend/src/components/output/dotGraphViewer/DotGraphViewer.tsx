@@ -74,7 +74,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       const svg = graphvizContainer.querySelector('svg');
       console.log('svg', svg);
       if (svg) {
-        if (currentGraph === 'callgraph.dot') {
+        if (currentGraph === 'callgraph.dot' || currentGraph === 'ptacg.dot' || currentGraph === 'tcg.dot') {
           svg.addEventListener('click', (event) => {
             const node = event.target.closest('g.node');
             if (node) {
@@ -276,7 +276,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     // console.log('useEffect test' ,nodes);
     const graphvizContainer = graphRef.current;
 
-    if (currentGraph === 'callgraph.dot') {
+    if (currentGraph === 'callgraph.dot' || currentGraph === 'ptacg.dot' || currentGraph === 'tcg.dot') {
       const codeBylines = code.split('\n');
       addFillColorToCallNode(codeBylines);
       console.log('codeBylines', codeBylines);
