@@ -100,8 +100,7 @@ function GraphsPage() {
 
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    `
-#include "stdbool.h"
+    `#include "stdbool.h"
 // CHECK: ^sat$
 
 extern int nd(void);
