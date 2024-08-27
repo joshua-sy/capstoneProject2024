@@ -60,14 +60,14 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   //   }
   // }, [graphRef]);
 
-  const resetZoom = () => {
-    if (graphRef.current) {
-      console.log('resetting zoom');
-      const svg = d3.select(graphRef.current).select('svg');
-      const zoom = d3.zoom().on('zoom', null); // Remove existing zoom behavior
-      svg.call(zoom.transform, d3.zoomIdentity); // Reset zoom to identity (no zoom)
-    }
-  };
+  // const resetZoom = () => {
+  //   if (graphRef.current) {
+  //     console.log('resetting zoom');
+  //     const svg = d3.select(graphRef.current).select('svg');
+  //     const zoom = d3.zoom().on('zoom', null); // Remove existing zoom behavior
+  //     svg.call(zoom.transform, d3.zoomIdentity); // Reset zoom to identity (no zoom)
+  //   }
+  // };
 
   /*
     The use effect below is used to add an event listener to each node in the graph

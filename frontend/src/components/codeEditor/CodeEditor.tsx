@@ -51,7 +51,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
 
   // Function to highlight a specific line
   const highlightLine = (lineNumber: number, colour: string) => {
-    if (editorRef.current && decorationCollection.current !== null) {
+    if (editorRef.current !== null) {
       // const newDecorations = editorRef.current.deltaDecorations(
       //   decorations,
       //   [

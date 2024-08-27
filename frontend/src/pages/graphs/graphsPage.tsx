@@ -7,8 +7,6 @@ import TerminalOutput from '../../components/output/terminalOutput/TerminalOutpu
 import CodeGPT from '../../components/output/codeGPT/CodeGPT';
 import LLVMIR from '../../components/output/LLVMIR/LLVMIR';
 import submitCodeFetch from '../../api.ts';
-import TabOutput from '../../components/output/tabOutput/TabOutput';
-import D3Graph from '../../components/output/d3Graph/D3Graph.tsx';
 import NavBar from '../../components/navBar/Navbar.tsx';
 import SettingsModal from '../../components/settingsModal/SettingsModal.tsx';
 import './graphsPage.css';
@@ -235,7 +233,7 @@ int main(){
           />
         </div>
         <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-          <OutputMenuBar setCurrentOutput={setCurrentOutput} />
+          <OutputMenuBar setCurrentOutput={setCurrentOutput} currentOutput={currentOutput} />
           <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
         </div>
       </div>
