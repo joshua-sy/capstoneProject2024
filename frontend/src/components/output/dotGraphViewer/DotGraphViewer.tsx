@@ -382,7 +382,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       // const notWorking = "Node0x5cf12bc4a740 [shape=record,color=black,label=\"{NodeID: 7\nIntraBlockNode ID: 7      ret i32 0, !dbg !16 \{ ln: 5  cl: 4  fl: example.c \}    \{fun: main\}}\"];"
       nodesOnly.forEach(originalNode => {
         if (originalNode.includes('shape')) {
-          for (const nodeId:string in nodeIDColour) {
+          for (const nodeId in nodeIDColour) {
             console.log('nodeId in addFillColorToNode',nodeId);
             if (originalNode.includes(nodeId)) {
               const addingFillColour = `, style=filled, fillcolor="${nodeIDColour[nodeId]}"];`
