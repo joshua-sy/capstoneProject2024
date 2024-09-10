@@ -321,7 +321,6 @@ int main(){
           <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
         </div>
       </div>
-      <button onClick={createLZStringUrl}>Create LZString URL</button>
     </>
   );
 }
