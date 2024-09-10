@@ -18,8 +18,12 @@ type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
 interface DecompressedSettings {
   code?: string;
-  selectedCompileOptions?: string[];
+  selectedCompileOptions?: compileOption[];
   selectedExecutableOptions?: string[];
+}
+interface compileOption {
+  value: string;
+  label: string;
 }
 
 const compileOptions = [
@@ -247,7 +251,6 @@ int main(){
       console.log(decompressedSettings);
       if (decompressedSettings.hasOwnProperty('code')) {
         setCode(decompressedSettings.code);
-
       } 
       if (decompressedSettings.hasOwnProperty('selectedCompileOptions')) {
         setSelectedCompileOptions(decompressedSettings.selectedCompileOptions);
