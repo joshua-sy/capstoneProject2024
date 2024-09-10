@@ -116,3 +116,6 @@ config/
 # Ignore build directories
 api/bin/
 api/obj/
+../api/bin/*
+api/bin/*
+api/obj/*
