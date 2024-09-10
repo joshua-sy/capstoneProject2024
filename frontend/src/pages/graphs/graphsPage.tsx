@@ -16,6 +16,12 @@ import { Share } from '@mui/icons-material';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
+interface DecompressedSettings {
+  code?: string;
+  selectedCompileOptions?: string[];
+  selectedExecutableOptions?: string[];
+}
+
 const compileOptions = [
   { value: '-g', label: '-g' },
   { value: '-c', label: '-c' },
@@ -226,17 +232,17 @@ int main(){
     const urlParams = new URLSearchParams(window.location.search);
     let compressedFromURL = urlParams.get('data');
     if (compressedFromURL) {
-      let decompressedSettings = {};
+      let decompressedSettings: DecompressedSettings = {};
       if (compressedFromURL.startsWith('${')) {
         compressedFromURL = compressedFromURL.replace('${', '');
-        decompressedSettings = decompressFromEncodedURIComponent(compressedFromURL);
-        decompressedSettings = JSON.parse(decompressedSettings);
+        const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
+        decompressedSettings = JSON.parse(decompressedSettingsString);
         console.log(decompressedSettings); // This is the original string
       } else {
         console.log(compressedFromURL);
-        decompressedSettings = decompressFromEncodedURIComponent(compressedFromURL);
+        const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
         console.log(decompressedSettings); // This is the original string
-        decompressedSettings = JSON.parse(decompressedSettings);
+        decompressedSettings = JSON.parse(decompressedSettingsString);
       }
       console.log(decompressedSettings);
       if (decompressedSettings.hasOwnProperty('code')) {
