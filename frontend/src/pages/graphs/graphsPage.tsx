@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CodeEditor from '../../components/codeEditor/CodeEditor';
 import DotGraphViewer from '../../components/output/dotGraphViewer/DotGraphViewer';
 import SubmitCodeBar from '../../components/submitCode/submitCodeBar/SubmitCodeBar';
@@ -10,6 +10,9 @@ import submitCodeFetch from '../../api.ts';
 import NavBar from '../../components/navBar/Navbar.tsx';
 import SettingsModal from '../../components/settingsModal/SettingsModal.tsx';
 import './graphsPage.css';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import ShareLZSettingsModal from '../../components/shareLZSettingsModal/shareLZSettingsModal.tsx';
+import { Share } from '@mui/icons-material';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -198,6 +201,71 @@ int main(){
   const [llvmFontSize, setllvmFontSize] = useState(16);
   const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
 
+  const createLZStringUrl = () => {
+    console.log(window.location.pathname);
+    console.log(window.location.href);
+    const url = window.location.href;
+    const currRoute = url.split('?')[0];
+    const savedSettings = {
+      code: code,
+      selectedCompileOptions: selectedCompileOptions,
+      selectedExecutableOptions: selectedExecutableOptions,
+    };
+    console.log(savedSettings);
+    const compressed = compressToEncodedURIComponent(JSON.stringify(savedSettings));
+    console.log(compressed);
+    console.log(url + '?data=' + compressed);
+    console.log(JSON.parse(decompressFromEncodedURIComponent(compressed)));
+    console.log(url.split('?')[0]);
+    // console.log(compressToEncodedURIComponent(compressed));
+    return currRoute + '?data=' + compressed;
+    // return compressed;
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    let compressedFromURL = urlParams.get('data');
+    if (compressedFromURL) {
+      let decompressedSettings = {};
+      if (compressedFromURL.startsWith('${')) {
+        compressedFromURL = compressedFromURL.replace('${', '');
+        decompressedSettings = decompressFromEncodedURIComponent(compressedFromURL);
+        decompressedSettings = JSON.parse(decompressedSettings);
+        console.log(decompressedSettings); // This is the original string
+      } else {
+        console.log(compressedFromURL);
+        decompressedSettings = decompressFromEncodedURIComponent(compressedFromURL);
+        console.log(decompressedSettings); // This is the original string
+        decompressedSettings = JSON.parse(decompressedSettings);
+      }
+      console.log(decompressedSettings);
+      if (decompressedSettings.hasOwnProperty('code')) {
+        setCode(decompressedSettings.code);
+
+      } 
+      if (decompressedSettings.hasOwnProperty('selectedCompileOptions')) {
+        setSelectedCompileOptions(decompressedSettings.selectedCompileOptions);
+      }
+      if (decompressedSettings.hasOwnProperty('selectedExecutableOptions')) {
+        setSelectedExecutableOptions(decompressedSettings.selectedExecutableOptions);
+      }
+    } else {
+      console.log('nothing compressed')
+    }
+  }, []);
+  const [openShareModal, setOpenShareModal] = React.useState(false);
+  const handleOpenShareModal = () => setOpenShareModal(true);
+  const handleCloseShareModal = () => setOpenShareModal(false);
+  const [shareLink, setShareLink] = useState('');
+
+  useEffect(() => {
+    if (openShareModal === true) {
+      setShareLink(createLZStringUrl());
+      console.log('open Share modal is true')
+    }
+  }, [openShareModal]);
+    
+
   return (
     <>
       <SettingsModal
@@ -210,7 +278,14 @@ int main(){
         terminalOutputFontSize={terminalOutputFontSize}
         setTerminalOutputFontSize={setTerminalOutputFontSize}
       />
-      <NavBar openSettings={handleOpenSettings} />
+      <ShareLZSettingsModal open={openShareModal}
+        handleClose={handleCloseShareModal}
+        shareLink={shareLink}
+        />
+      <NavBar 
+        openSettings={handleOpenSettings} 
+        openShare={handleOpenShareModal}
+      />
       <div id='graph-page-container' style={inlineStyles.container}>
         <div id='graph-page-code-container' style={{ width: '50%' }}>
           <SubmitCodeBar
@@ -237,6 +312,7 @@ int main(){
           <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
         </div>
       </div>
+      <button onClick={createLZStringUrl}>Create LZString URL</button>
     </>
   );
 }
