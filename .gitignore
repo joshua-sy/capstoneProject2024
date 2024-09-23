@@ -119,3 +119,4 @@ api/obj/
 ../api/bin/*
 api/bin/*
 api/obj/*
+api/obj/Debug
