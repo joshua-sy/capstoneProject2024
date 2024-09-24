@@ -30,7 +30,11 @@ namespace api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RequestBody requestBody)
-        {
+        {   
+            foreach (string f in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.dot"))
+            {
+                System.IO.File.Delete(f);
+            }
             await SetCompileOptions(requestBody);
             await WriteToCFile(requestBody.Input);
             var output = await LaunchScript();
