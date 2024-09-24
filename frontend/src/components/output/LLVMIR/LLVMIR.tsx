@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { definition } from './llvmIRLanguage';
 
 interface LLVMIRProps {
   LLVMIRString: string;
@@ -15,6 +16,8 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, llvmFontSize}) => {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     editor.updateOptions({ readOnly: true });
+    monaco.languages.register({ id: 'llvm-ir' });
+    monaco.languages.setMonarchTokensProvider('llvm-ir', definition());
 
     editor.onDidChangeModelContent(() => {
       const value = editor.getValue();
@@ -26,7 +29,7 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, llvmFontSize}) => {
     <div>
     <Editor
       height="90vh"
-      language="plaintext"
+      language='llvm-ir'
       theme="vs-light"
       value={LLVMIRString}
       onMount={handleEditorDidMount}
