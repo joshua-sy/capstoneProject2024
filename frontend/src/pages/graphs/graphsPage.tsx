@@ -109,7 +109,7 @@ function GraphsPage() {
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
   const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([]);
 
-  const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
+  const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodeOrllvm: string[], colour: string } }>({});
   const [code, setCode] = useState(
     `#include "stdbool.h"
 // CHECK: ^sat$
@@ -176,7 +176,7 @@ int main(){
           />
         );
       case 'LLVMIR':
-        return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} />;
+        return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} code={code} lineNumDetails={lineNumDetails} setLineNumDetails={setLineNumDetails}/>;
       default:
         return null;
     }
@@ -192,8 +192,6 @@ int main(){
       graphObj[graph.name] = graph.graph;
     });
     setGraphs(graphObj);
-    console.log('graphObj', graphObj);
-    console.log('submit code response', response);
     setllvmIRString(response.llvm);
     setTerminalOutputString(response.output);
   };
@@ -221,15 +219,8 @@ int main(){
       selectedCompileOptions: selectedCompileOptions,
       selectedExecutableOptions: selectedExecutableOptions,
     };
-    console.log(savedSettings);
     const compressed = compressToEncodedURIComponent(JSON.stringify(savedSettings));
-    console.log(compressed);
-    console.log(url + '?data=' + compressed);
-    console.log(JSON.parse(decompressFromEncodedURIComponent(compressed)));
-    console.log(url.split('?')[0]);
-    // console.log(compressToEncodedURIComponent(compressed));
     return currRoute + '?data=' + compressed;
-    // return compressed;
   };
 
   useEffect(() => {

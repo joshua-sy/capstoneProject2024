@@ -7,7 +7,7 @@ interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
   lineNumToHighlight: Set<number>;
-  lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
+  lineNumDetails: { [key: string]: { nodeOrllvm: string[], colour: string } };
   setCurrCodeLineNum: (lineNum: number) => void;
   codeFontSize: number;
 
