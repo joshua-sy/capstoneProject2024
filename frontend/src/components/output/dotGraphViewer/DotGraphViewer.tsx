@@ -12,8 +12,8 @@ interface DotGraphViewerProps {
   lineNumToHighlight: Set<number>;
   setlineNumToHighlight: (newLineNumToHighlight: Set<number>) => void;
   graphObj: { [key: string]: string };
-  lineNumDetails: { [key: string]: { nodes: string[], colour: string } };
-  setLineNumDetails: (newLineNumDetails: { [key: string]: { nodes: string[], colour: string } }) => void;
+  lineNumDetails: { [lineNum: string]: { nodeOrllvm: string[], colour: string } };
+  setLineNumDetails: (newLineNumDetails: { [lineNum: string]: { nodeOrllvm: string[], colour: string } }) => void;
   currCodeLineNum: number;
   code: string;
 
@@ -108,7 +108,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
               let newlineNumToHighlight: Set<number> = new Set<number>();
 
               Object.keys(lineNumDetails).forEach((lineNum) => {
-                const nodes = lineNumDetails[lineNum].nodes;
+                const nodes = lineNumDetails[lineNum].nodeOrllvm;
                 if (nodes.includes(funcTofind)) {
                   newlineNumToHighlight.add(parseInt(lineNum, 10));
                 }
@@ -186,7 +186,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     } else if (graphvizContainer) {
       const svg = graphvizContainer.querySelector('svg');
       let newlineNumToHighlight: Set<number> = new Set<number>();
-      const lineNumToNodes: { [key: string]: { nodes: string[], colour: string } } = {};
+      const lineNumToNodes: { [key: string]: { nodeOrllvm: string[], colour: string } } = {};
       if (svg) {
         const nodes = svg.querySelectorAll('g.node');
         nodes.forEach(node => {
@@ -223,9 +223,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
                 }
                 newlineNumToHighlight.add(parseInt(matchLineNum[1], 10));
                 if (matchLineNum[1] in lineNumToNodes) {
-                  lineNumToNodes[matchLineNum[1]]['nodes'].push(nodeId);
+                  lineNumToNodes[matchLineNum[1]]['nodeOrllvm'].push(nodeId);
                 } else {
-                  const value = {'nodes': [nodeId], colour: ''};
+                  const value = {'nodeOrllvm': [nodeId], colour: ''};
                   lineNumToNodes[matchLineNum[1]] = value;
                 }
               
@@ -238,9 +238,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
                   // shape.setAttribute('fill', 'red');
                   // console.log('shape after', shape);
                   if (matchLineNum[1] in lineNumToNodes) {
-                    lineNumToNodes[matchLineNum[1]]['nodes'].push(nodeId);
+                    lineNumToNodes[matchLineNum[1]]['nodeOrllvm'].push(nodeId);
                   } else {
-                    const value = {'nodes': [nodeId], colour: ''};
+                    const value = {'nodeOrllvm': [nodeId], colour: ''};
                     lineNumToNodes[matchLineNum[1]] = value;
                   }
 
@@ -264,7 +264,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         sortedNumericKeys.forEach((lineNum, index) => {
           const colour = highlightColours[index % highlightColours.length];
           lineNumToNodes[lineNum]['colour'] = colour;
-          lineNumToNodes[lineNum]['nodes'].forEach(nodeId => {
+          lineNumToNodes[lineNum]['nodeOrllvm'].forEach(nodeId => {
             nodeIDColour[nodeId] = colour;
           });
         });
@@ -333,7 +333,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       });
       console.log('funcs', funcs);
       const funcLineColor: {[func: string]: {line: Set<number>, colour: string}} = {};
-      const lineNumToNodes: { [key: string]: { nodes: string[], colour: string } } = {};
+      const lineNumToNodes: { [key: string]: { nodeOrllvm: string[], colour: string } } = {};
       const funcToColour: { [func: string]: string } = {};
 
       codeBylines.forEach((codeLine, index) => {
@@ -344,14 +344,14 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             const funcName = func.replace('(', '');
             if (func in funcLineColor) {
               funcLineColor[func].line.add(index + 1);
-              lineNumToNodes[index + 1] = { nodes: [funcName], colour: funcLineColor[func].colour };
+              lineNumToNodes[index + 1] = { nodeOrllvm: [funcName], colour: funcLineColor[func].colour };
             } else {
               let lineNumbers = new Set<number>();
               lineNumbers.add(index + 1);
               const currSizeFunc:number = Object.keys(funcLineColor).length;
               funcLineColor[func] = {line: lineNumbers, colour: highlightColours[currSizeFunc % highlightColours.length]};
               // line num to nodes
-              lineNumToNodes[index + 1] = { nodes: [funcName], colour: highlightColours[currSizeFunc % highlightColours.length] };
+              lineNumToNodes[index + 1] = { nodeOrllvm: [funcName], colour: highlightColours[currSizeFunc % highlightColours.length] };
               funcToColour[funcWithSlash] = highlightColours[currSizeFunc % highlightColours.length];
             }
           }
