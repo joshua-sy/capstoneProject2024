@@ -18,6 +18,24 @@ export PATH=$PATH:$HOME/dotnet
 
 Run the 2 export commands every time you open up a new terminal session. You could also edit the your shell profile to permanently add the commands. 
 
+# Downloading node manager for frontend
+
+Install Node Version Manager (nvm) by running the following command
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+```
+
+Install Node version 20 by running following command
+```
+nvm install 20
+```
+
+You can check the node version by running following command. It should say v20.*.*
+```
+node -v
+```
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
