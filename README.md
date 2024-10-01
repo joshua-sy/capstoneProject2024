@@ -1,3 +1,23 @@
+# Downloading dotnet on Linux
+Go to this website
+```
+https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+```
+
+Download sdk for dotnet 8.0. Click on x64 for binaries if using x64 architecture. Click arm64 if running on M-series macbook. This should automatically download the binary as a tar file. 
+```
+cd Downloads
+```
+Go into downloads and run the following commands. (These commands were taken from the download page)
+
+```
+mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-8.0.402-linux-x64.tar.gz -C $HOME/dotnet
+export DOTNET_ROOT=$HOME/dotnet
+export PATH=$PATH:$HOME/dotnet
+```
+
+Run the 2 export commands every time you open up a new terminal session. You could also edit the your shell profile to permanently add the commands. 
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
