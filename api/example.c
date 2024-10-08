@@ -1,4 +1,4 @@
- #include "stdbool.h"
+#include "stdbool.h"
 // CHECK: ^sat$
 
 extern int nd(void);

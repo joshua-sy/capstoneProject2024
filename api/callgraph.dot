@@ -1,11 +1,11 @@
 digraph "Call Graph" {
 	label="Call Graph";
 
-	Node0x574d740565b0 [shape=record,shape=box,label="{CallGraphNode ID: 3 \{fun: main\}|{<s0>3}}"];
-	Node0x574d740565b0:s0 -> Node0x574d740600d0[color=black];
-	Node0x574d740601f0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 2 \{fun: svf_assert\}}"];
-	Node0x574d7405a2e0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 1 \{fun: llvm.dbg.declare\}}"];
-	Node0x574d740600d0 [shape=record,shape=box,label="{CallGraphNode ID: 0 \{fun: test\}|{<s0>1|<s1>2}}"];
-	Node0x574d740600d0:s0 -> Node0x574d740601f0[color=black];
-	Node0x574d740600d0:s1 -> Node0x574d740601f0[color=black];
+	Node0x558a0bf2c5a0 [shape=record,shape=box,label="{CallGraphNode ID: 3 \{fun: main\}|{<s0>3}}"];
+	Node0x558a0bf2c5a0:s0 -> Node0x558a0bf360c0[color=black];
+	Node0x558a0bf361e0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 2 \{fun: svf_assert\}}"];
+	Node0x558a0bf302d0 [shape=record,shape=Mrecord,label="{CallGraphNode ID: 1 \{fun: llvm.dbg.declare\}}"];
+	Node0x558a0bf360c0 [shape=record,shape=box,label="{CallGraphNode ID: 0 \{fun: test\}|{<s0>1|<s1>2}}"];
+	Node0x558a0bf360c0:s0 -> Node0x558a0bf361e0[color=black];
+	Node0x558a0bf360c0:s1 -> Node0x558a0bf361e0[color=black];
 }
