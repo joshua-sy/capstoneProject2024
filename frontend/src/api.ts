@@ -31,28 +31,31 @@ const requestBody = {
 console.log('requestBody', requestBody)
 
 // Perform the fetch request
-// return await fetch(url, {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json'
-//   },
-//   body: JSON.stringify(requestBody)
-// })
-// .then(response => {
-//   if (!response.ok) {
-//     throw new Error('Network response was not ok ' + response.statusText);
-//   }
-//   return response.json();
-// })
-// .then(data => {
-//   // Handle the response data here
-//   console.log('Success:', data);
-//   return data;
-// })
-// .catch(error => {
-//   // Handle any errors here
-//   console.error('Error:', error);
-// });
+return await fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(requestBody)
+})
+.then(response => {
+  if (!response.ok) {
+    console.log(response);
+    console.log(response.json());
+    throw new Error('Network response was not ok ' + response.statusText);
+  }
+  return response.json();
+})
+.then(data => {
+  // Handle the response data here
+  console.log(data.error);
+  console.log('Success:', data);
+  return data;
+})
+.catch(error => {
+  // Handle any errors here
+  console.error('Error:', error);
+});
 
 
   const sampleResponse = {

@@ -103,7 +103,7 @@ function GraphsPage() {
     Node0x151f135b0 [shape=record,color=green,label="{FunExitICFGNode21 \\{fun: main\\{ \\"ln\\": 0, \\"cl\\": 0, \\"fl\\": \\"./test3.c\\" \\}\\}\\nPhiStmt: [Var47 \\<-- ([Var35, ICFGNode20],)]  \\n   ret i32 0, !dbg !41 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
   }
   `;
-
+  const [codeError, setCodeError] = useState([])
   const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
@@ -194,6 +194,7 @@ int main(){
     setGraphs(graphObj);
     setllvmIRString(response.llvm);
     setTerminalOutputString(response.output);
+    setCodeError(response.error.split('\n'));
   };
 
   const resetDefault = () => {
@@ -305,6 +306,7 @@ int main(){
             lineNumDetails={lineNumDetails}
             setCurrCodeLineNum={setCurrCodeLineNum}
             codeFontSize={codeFontSize}
+            codeError={codeError}
           />
         </div>
         <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>

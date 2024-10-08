@@ -33,15 +33,24 @@ namespace api.Controllers
         {
             await SetCompileOptions(requestBody);
             await WriteToCFile(requestBody.Input);
-            var output = await LaunchScript();
+            ScriptOutput clangOutput = await LaunchScript("createLLVM.sh");
+            
+            // if clangOutput is empty, then it means it has successfully compiled and made llvm
+            // if there is an error message, then we throw 400 error and return the compile message
+            // need to test if compiled successfully and error message is a warning
+            if (!string.IsNullOrEmpty(clangOutput.Error)) {
+                return BadRequest(new {message = clangOutput.Error});
+            }
+            ScriptOutput analyzeOutput = await LaunchScript("analyzeBcFile.sh");
             var dotGraphs = GetDotGraphs();
             var llvm = await GetLLVMFile();
             var result = new api.models.SvfResult
             {
                 Name = "Resultant Graphs",
-                Output = output,
-                Graphs = !output.Contains("error") ? dotGraphs : new List<api.models.DotGraph>(),
-                Llvm = llvm
+                Output = analyzeOutput.Output,
+                Graphs = dotGraphs,
+                Error = analyzeOutput.Error,
+                Llvm = llvm,
             };
 
             return Ok(result);
@@ -70,30 +79,59 @@ namespace api.Controllers
 
         private static async Task SetCompileOptions(RequestBody requestBody)
         {
-            var analyzeBcScript = "clang " + requestBody.CompileOptions + " example.c -o example.ll\n./svf-ex example.ll";
+            var clangScript = "clang " + requestBody.CompileOptions + " example.c -o example.ll";
+            var executablesScript = "./svf-ex example.ll";
 
             if (requestBody.ExtraExecutables != null)
             {
                 foreach (var executable in requestBody.ExtraExecutables)
                 {
-                    analyzeBcScript += $"\n./{executable} example.ll";
+                    executablesScript += $"\n./{executable} example.ll";
                 }
             }
 
-            await System.IO.File.WriteAllTextAsync("analyzeBcFile.sh", analyzeBcScript);
-        }
+            await System.IO.File.WriteAllTextAsync("createLLVM.sh", clangScript);
+            await System.IO.File.WriteAllTextAsync("analyzeBcFile.sh", executablesScript);
 
-        private async static Task<string> LaunchScript()
+        }
+        // // Launches Script that does compiles the C code into LLVM using clang
+        // private async static Task<api.models.ScriptOutput> LaunchScriptClang()
+        // {
+        //     string command = "sh";
+        //     string argss = "createLLVM.sh";
+        //     string verb = " ";
+
+        //     ProcessStartInfo procInfo = new ProcessStartInfo();
+        //     procInfo.WindowStyle = ProcessWindowStyle.Normal;
+        //     procInfo.UseShellExecute = false;
+        //     procInfo.FileName = command;   // 'sh' for bash 
+        //     procInfo.Arguments = argss;        // The Script name 
+        //     procInfo.Verb = verb;                // ------------
+        //     procInfo.RedirectStandardOutput = true;
+        //     procInfo.RedirectStandardError = true;
+
+        //     var p = new Process();
+        //     p.StartInfo = procInfo;
+        //     p.Start();
+        //     // string output = p.StandardOutput.ReadToEnd();
+        //     string error = p.StandardError.ReadToEnd();
+        //     p.WaitForExit();
+        //     // await WaitForExitAsync(Process.Start(procInfo), new TimeSpan(0, 0, 30));// Start that process.
+        //     //return !String.IsNullOrWhiteSpace(error) ? error : output;
+        //     return error;
+        // }
+
+        private async static Task<api.models.ScriptOutput> LaunchScript(string scriptFileName)
         {
             string command = "sh";
-            string argss = "analyzeBcFile.sh";
+            // string argss = "analyzeBcFile.sh";
             string verb = " ";
 
             ProcessStartInfo procInfo = new ProcessStartInfo();
             procInfo.WindowStyle = ProcessWindowStyle.Normal;
             procInfo.UseShellExecute = false;
             procInfo.FileName = command;   // 'sh' for bash 
-            procInfo.Arguments = argss;        // The Script name 
+            procInfo.Arguments = scriptFileName;        // The Script name 
             procInfo.Verb = verb;                // ------------
             procInfo.RedirectStandardOutput = true;
             procInfo.RedirectStandardError = true;
@@ -106,7 +144,8 @@ namespace api.Controllers
             p.WaitForExit();
             // await WaitForExitAsync(Process.Start(procInfo), new TimeSpan(0, 0, 30));// Start that process.
             //return !String.IsNullOrWhiteSpace(error) ? error : output;
-            return output;
+            // return output;
+            return new api.models.ScriptOutput {Output = output, Error = error};
         }
 
         private static Task<bool> WaitForExitAsync(Process process, TimeSpan timeout)
