@@ -211,8 +211,6 @@ int main(){
   const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
 
   const createLZStringUrl = () => {
-    console.log(window.location.pathname);
-    console.log(window.location.href);
     const url = window.location.href;
     const currRoute = url.split('?')[0];
     const savedSettings = {
@@ -233,14 +231,10 @@ int main(){
         compressedFromURL = compressedFromURL.replace('${', '');
         const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
         decompressedSettings = JSON.parse(decompressedSettingsString);
-        console.log(decompressedSettings); // This is the original string
       } else {
-        console.log(compressedFromURL);
         const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
-        console.log(decompressedSettings); // This is the original string
         decompressedSettings = JSON.parse(decompressedSettingsString);
       }
-      console.log(decompressedSettings);
       if (decompressedSettings.hasOwnProperty('code')) {
         setCode(decompressedSettings.code);
       } 
@@ -250,8 +244,6 @@ int main(){
       if (decompressedSettings.hasOwnProperty('selectedExecutableOptions')) {
         setSelectedExecutableOptions(decompressedSettings.selectedExecutableOptions);
       }
-    } else {
-      console.log('nothing compressed')
     }
   }, []);
   const [openShareModal, setOpenShareModal] = React.useState(false);
@@ -262,7 +254,6 @@ int main(){
   useEffect(() => {
     if (openShareModal === true) {
       setShareLink(createLZStringUrl());
-      console.log('open Share modal is true')
     }
   }, [openShareModal]);
     

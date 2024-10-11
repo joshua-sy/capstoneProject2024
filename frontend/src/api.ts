@@ -1,6 +1,4 @@
 const submitCodeFetch = async (code: string, compileOptions: string, executables: string[]) => {
-  console.log('code', code);
-  console.log('compileOptions', compileOptions);
   
   // try {
   //   const response = await fetch('/your-endpoint', {
@@ -28,8 +26,8 @@ const requestBody = {
   extraExecutables: executables
 };
 
-console.log('requestBody', requestBody)
 
+return sampleResponse3;
 // Perform the fetch request
 return await fetch(url, {
   method: 'POST',
@@ -40,16 +38,12 @@ return await fetch(url, {
 })
 .then(response => {
   if (!response.ok) {
-    console.log(response);
-    console.log(response.json());
     throw new Error('Network response was not ok ' + response.statusText);
   }
   return response.json();
 })
 .then(data => {
   // Handle the response data here
-  console.log(data.error);
-  console.log('Success:', data);
   return data;
 })
 .catch(error => {
