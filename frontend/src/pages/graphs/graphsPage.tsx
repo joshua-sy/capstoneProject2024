@@ -111,34 +111,44 @@ function GraphsPage() {
 
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodeOrllvm: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    `#include "stdbool.h"
-// CHECK: ^sat$
+    `#include <stdio.h>
+#include <stdlib.h>
 
-extern int nd(void);
+typedef struct {
+    int *data;
+    int size;
+} IntArray;
 
-extern void svf_assert(bool);
-
-int test(int a, int b){
-    int x,y;
-    x=1; y=1;
-
-    if (a > b) {
-        x++;
-        y++;
-        svf_assert (x == y);
-    } else {
-        x++;
-        svf_assert (x == 2);
+IntArray* createIntArray(int size) {
+    IntArray *arr = malloc(sizeof(IntArray)); // Memory leak: no free for arr
+    arr->size = size;
+    arr->data = malloc(size * sizeof(int)); // Memory leak: no free for arr->data
+    for (int i = 0; i < size; i++) {
+        arr->data[i] = i; // Initialize the array
     }
-    return 0;
+    return arr;
 }
 
-int main(){
-    int a = 1;
-    int b = 2;
-    test(a,b);
+void useIntArray(IntArray *arr) {
+    // Just a placeholder function to simulate use
+    for (int i = 0; i < arr->size; i++) {
+        printf("%d ", arr->data[i]);
+    }
+    printf("n");
+}
+
+int main() {
+    IntArray *array1 = createIntArray(5);
+    IntArray *array2 = createIntArray(10);
+
+    useIntArray(array1);
+    useIntArray(array2);
+
+    // Memory leaks: no free for array1 and array2
+
     return 0;
-}`
+}
+`
   );
 
   const [lineNumToHighlight, setlineNumToHighlight] = useState<Set<number>>(new Set());

@@ -22,10 +22,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
   const [decorationCollection, setDecorationsCollection] = useState<monaco.editor.IEditorDecorationsCollection | null>(null);
   const decorationsRef = useRef(null);
+  const [editorKey, setEditorKey] = useState(0); // State variable for the key
+
 
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    const model = monaco.editor.createModel(code, 'c', monaco.Uri.parse('inmemory://test_script')
+  );
+    editor.setModel(model);
+    console.log('editor ref is at startup ', editorRef.current);
     decorationsRef.current = editor.createDecorationsCollection();
     setDecorationsCollection(editor.createDecorationsCollection());
     editor.updateOptions({ 
@@ -46,92 +52,85 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     // Sets the current line number when the cursor position changes
     editor.onDidChangeCursorPosition((event) => {
       const lineNum = event.position.lineNumber;
-      console.log('cursor changed to lineNum', lineNum);
       setCurrCodeLineNum(lineNum);
     });
-    const model = editorRef.current.getModel();
-    monaco.editor.setModelMarkers(model, 'c', [
-    {
-      startLineNumber: 1,
-      startColumn: 1,
-      endLineNumber: 1,
-      endColumn: model.getLineLength(1) + 1,
-      message: 'test',
-      severity: monaco.MarkerSeverity.Error,
-    },
-    {
-      startLineNumber: 10,
-      startColumn: 1,
-      endLineNumber: 10,
-      endColumn: model.getLineLength(1) + 1,
-      message: 'test',
-      severity: monaco.MarkerSeverity.Error,
-    },
-  ]);
+    console.log('model at the start is ', model);
+    const markers  = applyMarkers();
+    monaco.editor.setModelMarkers(model, 'c', markers);
 
   };
+
+  const applyMarkers = ():monaco.editor.IMarkerData[] => {
+    monaco.languages.register({ id: 'c' });
+
+    monaco.languages.setLanguageConfiguration('c', {
+      // Ensure C language supports diagnostics markers
+    });
+    if (editorRef.current && codeError.length !== 0 ) {
+      const model = editorRef.current.getModel();
+      console.log('editor ref in useEffect is ', editorRef.current);
+      console.log('model in useEffect is ', model);
+
+      console.log('Model:', editorRef.current.getModel());
+      console.log('Model language:', model.getLanguageId());
+      // Clear any previous markers
+      monaco.editor.setModelMarkers(model, 'c', []);
+      const lnRegex = /ln:\s*(\d+)/g;
+      const lnJsonRegex = /ln":\s*(\d+)/g;
+      const clRegex = /cl:\s*(\d+)/g;
+      let markers: monaco.editor.IMarkerData[] = []
+      codeError.map((error) => {
+        let match;
+        let lnNum = 0;
+        let clNum = 1;
+
+        match = error.match(lnRegex);
+        if (match) {
+          const lineAndNum = match[0].split(' ');
+          lnNum = parseInt(lineAndNum[1], 10);
+        }
+
+        match = error.match(clRegex);
+        if (match) {
+          const lineAndNum = match[0].split(' ');
+          clNum = parseInt(lineAndNum[1], 10);
+        }
+        if (lnNum !== 0) {
+          markers.push({
+            code: null,
+            source: 'c',
+            startLineNumber: lnNum,
+            startColumn: clNum,
+            endLineNumber: lnNum,
+            endColumn: model.getLineLength(lnNum) + 1,
+            message: error,
+            severity: monaco.MarkerSeverity.Error,
+          })
+        }
+      })
+      console.log('markers is ', markers);
+      return markers;
+      // monaco.editor.setModelMarkers(model, 'c', markers);
+      // console.log('Current Markers:', monaco.editor.getModelMarkers({ resource: model.uri }));
+
+    }
+    return [];
+  }
 
 
   useEffect(() => {
     console.log('useEffect for code error is triggered');
     console.log('errors is ', codeError);
-    const applyMarkers = () => {
-      monaco.languages.register({ id: 'c' });
-
-      monaco.languages.setLanguageConfiguration('c', {
-        // Ensure C language supports diagnostics markers
-      });
-      if (editorRef.current && codeError.length !== 0 ) {
-        const model = editorRef.current.getModel();
-        console.log('Model:', editorRef.current.getModel());
-        console.log('Model language:', model.getLanguageId());
-  
-  
-        console.log('editorRef is not null');
-        const lnRegex = /ln:\s*(\d+)/g;
-        const lnJsonRegex = /ln":\s*(\d+)/g;
-        const clRegex = /cl:\s*(\d+)/g;
-        let markers = []
-        codeError.map((error) => {
-          let match;
-          let lnNum = 0;
-          let clNum = 1;
-  
-          match = error.match(lnRegex);
-          if (match) {
-            const lineAndNum = match[0].split(' ');
-            lnNum = parseInt(lineAndNum[1], 10);
-          }
-  
-          match = error.match(clRegex);
-          if (match) {
-            const lineAndNum = match[0].split(' ');
-            clNum = parseInt(lineAndNum[1], 10);
-          }
-          if (lnNum !== 0) {
-            markers.push({
-              startLineNumber: lnNum,
-              startColumn: clNum,
-              endLineNumber: lnNum,
-              endColumn: model.getLineLength(lnNum) + 1,
-              message: error,
-              severity: monaco.MarkerSeverity.Error,
-            })
-          }
-        })
-        console.log('markers is ', markers);
-        monaco.editor.setModelMarkers(model, 'c', markers);
-        console.log('Current Markers:', monaco.editor.getModelMarkers({ resource: model.uri }));
-  
-      }
-    }
-    applyMarkers();
+    // applyMarkers();
     if (editorRef.current) {
       const model = editorRef.current.getModel();
       if (model) {
-        model.onDidChangeContent(() => {
-          applyMarkers();
-        });
+        // model.onDidChangeContent(() => {
+          const markers = applyMarkers();
+          monaco.editor.setModelMarkers(model, 'c', markers);
+          setEditorKey(prevKey => prevKey + 1);
+
+        // });
       }
     }
     
@@ -240,6 +239,7 @@ d5f1ec
     <>
     <div>
     <Editor
+      key={editorKey}
       height="90vh"
       language="c"
       theme="vs-light"
