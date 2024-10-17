@@ -43,7 +43,7 @@ const compileOptions = [
 const executableOptions = [
   { value: 'mta', label: 'mta' },
   { value: 'saber', label: 'saber' },
-  { value: 'ae', label: 'ae' },
+  { value: 'ae -overflow', label: 'ae' },
 ];
 
 function GraphsPage() {
@@ -204,8 +204,33 @@ int main() {
     setGraphs(graphObj);
     setllvmIRString(response.llvm);
     setTerminalOutputString(response.output);
-    setCodeError(response.error.split('\n'));
+    console.log(response.error);
+    setCodeError(formatErrorLogs(response.error));
   };
+
+  const formatErrorLogs = (stdErr: string) => {
+    console.log('std err is ', stdErr);
+    const errorList = stdErr.split('\n');
+    console.log('errorList is ', errorList)
+    let formattedErrors = [];
+    let i = 0;
+    let numOverflow = 0;
+    while (i < errorList.length) {
+      if (errorList[i].includes('NeverFree')) {
+        formattedErrors.push('MEMORY LEAK: ' + errorList[i]);
+      } else if (errorList[i].includes('######################Buffer Overflow')) {
+        numOverflow = parseInt(errorList[i].match(/\d+/)[0], 10);
+      } else if (errorList[i].includes("---------------------------------------------") && numOverflow > 0) {
+        formattedErrors.push("BUFFER OVERFLOW: " + errorList[i+1] + errorList[i+2]);
+        i = i + 2;
+        numOverflow--;
+      }
+
+      i++;
+    }
+    return formattedErrors;
+
+  }
 
   const resetDefault = () => {
     setSelectedCompileOptions([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);

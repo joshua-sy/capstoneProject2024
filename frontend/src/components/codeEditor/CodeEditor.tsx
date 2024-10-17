@@ -75,25 +75,42 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
       console.log('Model language:', model.getLanguageId());
       // Clear any previous markers
       monaco.editor.setModelMarkers(model, 'c', []);
+      
       const lnRegex = /ln:\s*(\d+)/g;
       const lnJsonRegex = /ln":\s*(\d+)/g;
       const clRegex = /cl:\s*(\d+)/g;
+      const lnRegexcl = /ln:\s*(\d+)\s*cl:\s*(\d+)/;
+      const quotedRegex = /"ln":\s*(\d+),\s*"cl":\s*(\d+)/;
       let markers: monaco.editor.IMarkerData[] = []
       codeError.map((error) => {
         let match;
         let lnNum = 0;
         let clNum = 1;
+        console.log('error is ' , error);
+        // match = error.match(lnRegex);
+        // if (match) {
+        //   const lineAndNum = match[0].split(' ');
+        //   lnNum = parseInt(lineAndNum[1], 10);
+        //   console.log('found line num and num is ', lnNum)
+        // }
 
-        match = error.match(lnRegex);
+        // match = error.match(clRegex);
+        // if (match) {
+        //   const lineAndNum = match[0].split(' ');
+        //   clNum = parseInt(lineAndNum[1], 10);
+        //   console.log('found cl num and num is ', clNum)
+        // }
+
+        match = error.match(lnRegexcl);
         if (match) {
-          const lineAndNum = match[0].split(' ');
-          lnNum = parseInt(lineAndNum[1], 10);
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
         }
 
-        match = error.match(clRegex);
+        match = error.match(quotedRegex);
         if (match) {
-          const lineAndNum = match[0].split(' ');
-          clNum = parseInt(lineAndNum[1], 10);
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
         }
         if (lnNum !== 0) {
           markers.push({
@@ -117,6 +134,30 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     return [];
   }
 
+  const memoryLeakError = (errorMsg:string) => {
+    const lnRegex = /ln:\s*(\d+)/g;
+      const lnJsonRegex = /ln":\s*(\d+)/g;
+      const clRegex = /cl:\s*(\d+)/g;
+      let match;
+      let lnNum = 0;
+      let clNum = 1;
+
+      match = errorMsg.match(lnRegex);
+      if (match) {
+        const lineAndNum = match[0].split(' ');
+        lnNum = parseInt(lineAndNum[1], 10);
+      }
+
+      match = errorMsg.match(clRegex);
+      if (match) {
+        const lineAndNum = match[0].split(' ');
+        clNum = parseInt(lineAndNum[1], 10);
+      }
+      return {
+        'lineNum': lnNum,
+        'columnNum': clNum,
+      }
+  }
 
   useEffect(() => {
     console.log('useEffect for code error is triggered');
