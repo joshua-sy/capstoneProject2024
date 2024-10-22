@@ -1,5 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5285); // This makes the app listen on port 5285
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -29,6 +34,7 @@ app.UseRouting();
 
 // Enable CORS
 app.UseCors("AllowSpecificOrigin");
+
 
 app.UseAuthorization();
 
