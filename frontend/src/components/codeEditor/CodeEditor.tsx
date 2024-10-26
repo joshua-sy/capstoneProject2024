@@ -81,26 +81,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
       const clRegex = /cl:\s*(\d+)/g;
       const lnRegexcl = /ln:\s*(\d+)\s*cl:\s*(\d+)/;
       const quotedRegex = /"ln":\s*(\d+),\s*"cl":\s*(\d+)/;
+      const clangRegex = /example.c:(\d+):(\d+)/;
       let markers: monaco.editor.IMarkerData[] = []
       codeError.map((error) => {
         let match;
         let lnNum = 0;
         let clNum = 1;
-        console.log('error is ' , error);
-        // match = error.match(lnRegex);
-        // if (match) {
-        //   const lineAndNum = match[0].split(' ');
-        //   lnNum = parseInt(lineAndNum[1], 10);
-        //   console.log('found line num and num is ', lnNum)
-        // }
-
-        // match = error.match(clRegex);
-        // if (match) {
-        //   const lineAndNum = match[0].split(' ');
-        //   clNum = parseInt(lineAndNum[1], 10);
-        //   console.log('found cl num and num is ', clNum)
-        // }
-
+        let severity = monaco.MarkerSeverity.Error;
         match = error.match(lnRegexcl);
         if (match) {
           lnNum = parseInt(match[1], 10);
@@ -112,6 +99,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
           lnNum = parseInt(match[1], 10);
           clNum = parseInt(match[2], 10);
         }
+        match = error.match(clangRegex);
+        if (match) {
+          console.log(match);
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
+          if (error.includes('warning:')) {
+            severity = monaco.MarkerSeverity.Warning;
+          }
+        }
+
         if (lnNum !== 0) {
           markers.push({
             code: null,

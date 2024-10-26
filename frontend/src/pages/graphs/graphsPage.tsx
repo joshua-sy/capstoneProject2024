@@ -195,18 +195,58 @@ int main() {
   const submitCode = async () => {
     const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
     const selectedExecutableOptionsList = selectedExecutableOptions.map(option => option.value);
+    console.log('selected execitan;e options: ', selectedExecutableOptionsList);
+
     const response = await submitCodeFetch(code, selectedCompileOptionString, selectedExecutableOptionsList);
-    const respGraphs = response.graphs;
-    const graphObj = {};
-    respGraphs.forEach(graph => {
-      graphObj[graph.name] = graph.graph;
-    });
-    setGraphs(graphObj);
-    setllvmIRString(response.llvm);
-    setTerminalOutputString(response.output);
-    console.log(response.error);
-    setCodeError(formatErrorLogs(response.error));
+    console.log('response from submit', response);
+    if ('name' in response) {
+      if (response.name == 'Resultant Graphs') {
+        const respGraphs = response.graphs;
+        const graphObj = {};
+        respGraphs.forEach(graph => {
+          graphObj[graph.name] = graph.graph;
+        });
+        setGraphs(graphObj);
+        setllvmIRString(response.llvm);
+        setTerminalOutputString(response.output);
+        console.log(response.error);
+        setCodeError(formatErrorLogs(response.error));
+      } else if (response.name == 'Clang Error') {
+        setTerminalOutputString(response.error);
+        setCodeError(formatClangErrors(response.error));
+      }
+      
+    }
+    
   };
+
+  const formatClangErrors = (stdErr: string) => {
+    const errorList = stdErr.split('\n');
+    console.log('formatClangErrors',errorList);
+    let errorMsg = '';
+    const regex = /example.c:(\d+):(\d+)/;
+    let formattedErrors = [];
+    // The last element of the array is sentence on how many errors and warnings were generated
+    for (let i = 0; i < errorList.length - 1; i++) {
+      let match = errorList[i].match(regex);
+      if (match) {
+        console.log('match', errorList[i]);
+        if (errorMsg !== '') {
+          formattedErrors.push(errorMsg);
+        }
+        errorMsg = 'CLANG:\n' + errorList[i];
+      } else {
+        errorMsg = errorMsg + '\n' +errorList[i];
+      }
+    }
+    if (errorMsg !== '') {
+      formattedErrors.push(errorMsg);
+    }
+    console.log('formattedErrors', formattedErrors);
+
+    return formattedErrors;
+
+  }
 
   const formatErrorLogs = (stdErr: string) => {
     console.log('std err is ', stdErr);

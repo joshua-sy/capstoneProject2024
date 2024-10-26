@@ -44,7 +44,11 @@ namespace api.Controllers
             // if there is an error message, then we throw 400 error and return the compile message
             // need to test if compiled successfully and error message is a warning
             if (!string.IsNullOrEmpty(clangOutput.Error)) {
-                return BadRequest(new {message = clangOutput.Error});
+                return BadRequest(new 
+                {
+                    Error = clangOutput.Error, 
+                    Name = "Clang Error",
+                });
             }
             ScriptOutput analyzeOutput = await LaunchScript("analyzeBcFile.sh");
             var dotGraphs = GetDotGraphs();
