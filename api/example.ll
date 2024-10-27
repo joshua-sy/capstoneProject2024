@@ -117,24 +117,20 @@ declare i32 @printf(i8* noundef, ...) #3
 define dso_local i32 @main() #0 !dbg !87 {
 entry:
   %retval = alloca i32, align 4
-  %arr = alloca [10 x i32], align 16
   %array1 = alloca %struct.IntArray*, align 8
   %array2 = alloca %struct.IntArray*, align 8
   store i32 0, i32* %retval, align 4
-  call void @llvm.dbg.declare(metadata [10 x i32]* %arr, metadata !90, metadata !DIExpression()), !dbg !94
-  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %arr, i64 0, i64 0, !dbg !95
-  store i32 0, i32* %arrayidx, align 16, !dbg !96
-  call void @llvm.dbg.declare(metadata %struct.IntArray** %array1, metadata !97, metadata !DIExpression()), !dbg !98
-  %call = call %struct.IntArray* @createIntArray(i32 noundef 5), !dbg !99
-  store %struct.IntArray* %call, %struct.IntArray** %array1, align 8, !dbg !98
-  call void @llvm.dbg.declare(metadata %struct.IntArray** %array2, metadata !100, metadata !DIExpression()), !dbg !101
-  %call1 = call %struct.IntArray* @createIntArray(i32 noundef 10), !dbg !102
-  store %struct.IntArray* %call1, %struct.IntArray** %array2, align 8, !dbg !101
-  %0 = load %struct.IntArray*, %struct.IntArray** %array1, align 8, !dbg !103
-  call void @useIntArray(%struct.IntArray* noundef %0), !dbg !104
-  %1 = load %struct.IntArray*, %struct.IntArray** %array2, align 8, !dbg !105
-  call void @useIntArray(%struct.IntArray* noundef %1), !dbg !106
-  ret i32 0, !dbg !107
+  call void @llvm.dbg.declare(metadata %struct.IntArray** %array1, metadata !90, metadata !DIExpression()), !dbg !91
+  %call = call %struct.IntArray* @createIntArray(i32 noundef 5), !dbg !92
+  store %struct.IntArray* %call, %struct.IntArray** %array1, align 8, !dbg !91
+  call void @llvm.dbg.declare(metadata %struct.IntArray** %array2, metadata !93, metadata !DIExpression()), !dbg !94
+  %call1 = call %struct.IntArray* @createIntArray(i32 noundef 10), !dbg !95
+  store %struct.IntArray* %call1, %struct.IntArray** %array2, align 8, !dbg !94
+  %0 = load %struct.IntArray*, %struct.IntArray** %array1, align 8, !dbg !96
+  call void @useIntArray(%struct.IntArray* noundef %0), !dbg !97
+  %1 = load %struct.IntArray*, %struct.IntArray** %array2, align 8, !dbg !98
+  call void @useIntArray(%struct.IntArray* noundef %1), !dbg !99
+  ret i32 0, !dbg !100
 }
 
 attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
@@ -148,7 +144,7 @@ attributes #4 = { nounwind }
 !llvm.ident = !{!9}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "Ubuntu clang version 14.0.0-1ubuntu1.1", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, splitDebugInlining: false, nameTableKind: None)
-!1 = !DIFile(filename: "example.c", directory: "/home/josy/capstoneProject2024/api", checksumkind: CSK_MD5, checksum: "6c1b0366e4c0ef8fc889dc7118d6da6c")
+!1 = !DIFile(filename: "example.c", directory: "/home/josy/capstoneProject2024/api", checksumkind: CSK_MD5, checksum: "a22cf963aa3298c69323a0c1cffc982f")
 !2 = !{i32 7, !"Dwarf Version", i32 5}
 !3 = !{i32 2, !"Debug Info Version", i32 3}
 !4 = !{i32 1, !"wchar_size", i32 4}
@@ -237,21 +233,14 @@ attributes #4 = { nounwind }
 !87 = distinct !DISubprogram(name: "main", scope: !1, file: !1, line: 27, type: !88, scopeLine: 27, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !21)
 !88 = !DISubroutineType(types: !89)
 !89 = !{!19}
-!90 = !DILocalVariable(name: "arr", scope: !87, file: !1, line: 28, type: !91)
-!91 = !DICompositeType(tag: DW_TAG_array_type, baseType: !19, size: 320, elements: !92)
-!92 = !{!93}
-!93 = !DISubrange(count: 10)
-!94 = !DILocation(line: 28, column: 9, scope: !87)
-!95 = !DILocation(line: 29, column: 5, scope: !87)
-!96 = !DILocation(line: 29, column: 12, scope: !87)
-!97 = !DILocalVariable(name: "array1", scope: !87, file: !1, line: 30, type: !13)
-!98 = !DILocation(line: 30, column: 15, scope: !87)
-!99 = !DILocation(line: 30, column: 24, scope: !87)
-!100 = !DILocalVariable(name: "array2", scope: !87, file: !1, line: 31, type: !13)
-!101 = !DILocation(line: 31, column: 15, scope: !87)
-!102 = !DILocation(line: 31, column: 24, scope: !87)
-!103 = !DILocation(line: 33, column: 17, scope: !87)
-!104 = !DILocation(line: 33, column: 5, scope: !87)
-!105 = !DILocation(line: 34, column: 17, scope: !87)
-!106 = !DILocation(line: 34, column: 5, scope: !87)
-!107 = !DILocation(line: 38, column: 5, scope: !87)
+!90 = !DILocalVariable(name: "array1", scope: !87, file: !1, line: 28, type: !13)
+!91 = !DILocation(line: 28, column: 15, scope: !87)
+!92 = !DILocation(line: 28, column: 24, scope: !87)
+!93 = !DILocalVariable(name: "array2", scope: !87, file: !1, line: 29, type: !13)
+!94 = !DILocation(line: 29, column: 15, scope: !87)
+!95 = !DILocation(line: 29, column: 24, scope: !87)
+!96 = !DILocation(line: 31, column: 17, scope: !87)
+!97 = !DILocation(line: 31, column: 5, scope: !87)
+!98 = !DILocation(line: 32, column: 17, scope: !87)
+!99 = !DILocation(line: 32, column: 5, scope: !87)
+!100 = !DILocation(line: 36, column: 5, scope: !87)

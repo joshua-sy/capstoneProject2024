@@ -57,7 +57,55 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     console.log('model at the start is ', model);
     const markers  = applyMarkers();
     monaco.editor.setModelMarkers(model, 'c', markers);
+    // editor.updateOptions({
+    //   lightbulb: {
+    //     enabled: true
+    //   },
+    // });
+    // Register a Code Action Provider with a command
 
+    // Register the command
+    const myCustomCommandId = monaco.editor.registerCommand('askCodeGPTCommand', (accessor, ...args) => {
+      const [uri, range, problemMessage, lineCode] = args;
+      askCodeGPT(uri, range, problemMessage, lineCode);
+    })
+    monaco.languages.registerCodeActionProvider('c', {
+      provideCodeActions: (model, range, context, token) => {
+        const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+        const relevantMarker = markers.find(marker => marker.startLineNumber === range.startLineNumber);
+    
+        if (!relevantMarker) {
+          return { actions: [], dispose: () => {} };
+        }
+    
+        // Extract the code on the relevant line
+        const lineCode = model.getLineContent(relevantMarker.startLineNumber);
+    
+        const quickFix = {
+          title: "Ask CodeGPT",
+          diagnostics: [relevantMarker],
+          kind: "quickfix",
+          command: {
+            id: 'askCodeGPTCommand',
+            title: "Ask CodeGPT",
+            arguments: [model.uri, range, relevantMarker.message, lineCode], // Pass message and line code
+          },
+          isPreferred: true,
+        };
+    
+        return {
+          actions: [quickFix],
+          dispose: () => {},
+        };
+      },
+    });
+
+  };
+
+  const askCodeGPT = (uri: monaco.Uri, range: monaco.Range, problemMessage: string, lineCode: string) => {
+    console.log('Problem:', problemMessage);
+    console.log('Code on line:', lineCode);
+    // Additional logic for handling the problem message and code line
   };
 
   const applyMarkers = ():monaco.editor.IMarkerData[] => {
@@ -173,6 +221,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     }
     
   }, [codeError])
+
 
   useEffect(() => {
     if (decorationsRef !== null && decorationsRef.current !== null) {
