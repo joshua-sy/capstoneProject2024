@@ -13,6 +13,7 @@ import './graphsPage.css';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import ShareLZSettingsModal from '../../components/shareLZSettingsModal/shareLZSettingsModal.tsx';
 import { Share } from '@mui/icons-material';
+import D3Graph from '../../components/output/d3Graph/D3Graph';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -161,17 +162,20 @@ int main() {
   const renderComponent = () => {
     switch (currentOutput) {
       case 'Graph':
+        // return (
+        //   <DotGraphViewer
+        //     dotGraphString={callGraph}
+        //     lineNumToHighlight={lineNumToHighlight}
+        //     setlineNumToHighlight={setlineNumToHighlight}
+        //     graphObj={graphs}
+        //     setLineNumDetails={setLineNumDetails}
+        //     lineNumDetails={lineNumDetails}
+        //     currCodeLineNum={currCodeLineNum}
+        //     code={code}
+        //   />
+        // );
         return (
-          <DotGraphViewer
-            dotGraphString={callGraph}
-            lineNumToHighlight={lineNumToHighlight}
-            setlineNumToHighlight={setlineNumToHighlight}
-            graphObj={graphs}
-            setLineNumDetails={setLineNumDetails}
-            lineNumDetails={lineNumDetails}
-            currCodeLineNum={currCodeLineNum}
-            code={code}
-          />
+          <D3Graph dot={icfgGraph}/>
         );
       case 'Terminal Output':
         return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
@@ -193,6 +197,13 @@ int main() {
         return null;
     }
   };
+
+  useEffect(() => {
+    if (passedPrompt !== '') {
+      setCurrentOutput('CodeGPT');
+      renderComponent();
+    }
+  }, [passedPrompt])
 
   const submitCode = async () => {
     const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
