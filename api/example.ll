@@ -144,7 +144,11 @@ attributes #4 = { nounwind }
 !llvm.ident = !{!9}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "Ubuntu clang version 14.0.0-1ubuntu1.1", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, splitDebugInlining: false, nameTableKind: None)
+<<<<<<< HEAD
 !1 = !DIFile(filename: "example.c", directory: "/home/josy/capstoneProject2024/api", checksumkind: CSK_MD5, checksum: "a22cf963aa3298c69323a0c1cffc982f")
+=======
+!1 = !DIFile(filename: "example.c", directory: "/home/samiksha/Desktop/capstoneProject2024/api", checksumkind: CSK_MD5, checksum: "a1749a190177d9551d4513e5508cfc02")
+>>>>>>> main
 !2 = !{i32 7, !"Dwarf Version", i32 5}
 !3 = !{i32 2, !"Debug Info Version", i32 3}
 !4 = !{i32 1, !"wchar_size", i32 4}
