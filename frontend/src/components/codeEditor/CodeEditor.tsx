@@ -10,28 +10,40 @@ interface CodeEditorProps {
   lineNumDetails: { [key: string]: { nodeOrllvm: string[], colour: string } };
   setCurrCodeLineNum: (lineNum: number) => void;
   codeFontSize: number;
-
+  codeError : string[];
+  setPassedPrompt: (prompt: string) => void;
 }
 
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize, codeError, setPassedPrompt}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
   const [decorationCollection, setDecorationsCollection] = useState<monaco.editor.IEditorDecorationsCollection | null>(null);
   const decorationsRef = useRef(null);
+  const [editorKey, setEditorKey] = useState(0); // State variable for the key
+
 
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    const model = monaco.editor.createModel(code, 'c', monaco.Uri.parse('inmemory://test_script')
+  );
+    editor.setModel(model);
+    console.log('editor ref is at startup ', editorRef.current);
     decorationsRef.current = editor.createDecorationsCollection();
     setDecorationsCollection(editor.createDecorationsCollection());
-    // editor.updateOptions({ fontSize });
+    editor.updateOptions({ 
+      fontSize: codeFontSize,
+      renderValidationDecorations: 'on',
+     });
+     monaco.languages.register({ id: 'c' });
 
-    // // Highlight line 3 after the editor has mounted
-    // highlightLine(3);
+    monaco.languages.setLanguageConfiguration('c', {
+      // Ensure C language supports diagnostics markers
+    });
 
     editor.onDidChangeModelContent(() => {
       const value = editor.getValue();
@@ -41,139 +53,196 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     // Sets the current line number when the cursor position changes
     editor.onDidChangeCursorPosition((event) => {
       const lineNum = event.position.lineNumber;
-      console.log('cursor changed to lineNum', lineNum);
       setCurrCodeLineNum(lineNum);
     });
-  };
+    console.log('model at the start is ', model);
+    const markers  = applyMarkers();
+    monaco.editor.setModelMarkers(model, 'c', markers);
+    // editor.updateOptions({
+    //   lightbulb: {
+    //     enabled: true
+    //   },
+    // });
+    // Register a Code Action Provider with a command
 
-  // Colors
-
-
-  // Function to highlight a specific line
-  const highlightLine = (lineNumber: number, colour: string) => {
-    if (editorRef.current !== null) {
-      // const newDecorations = editorRef.current.deltaDecorations(
-      //   decorations,
-      //   [
-      //     {
-      //       range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-      //       options: {
-      //         isWholeLine: true,
-      //         inlineClassName: `line-decoration-${colour}`,
-      //       },
-      //     },
-      //     // {
-      //     //   range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-      //     //   options: {
-      //     //     // isWholeLine: true,
-      //     //     inlineClassName: "myLineDecoration",
-      //     //   },
-      //     // },
-      //   ]
-      // );
-      console.log('decoration collection is in highlightLine', decorationCollection);
-      // if (decorationCollection !== null) {
-      //   decorationCollection.set([
-      //     {
-      //       range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-      //       options: {
-      //         isWholeLine: true,
-      //         inlineClassName: `line-decoration-${colour}`,
-      //       },
-      //     },
-      //   ]);
-      // }
-      
-        const newDecorations = [
-          {
-            range: new monaco.Range(4, 1, 4, 1),
-            options: {
-              isWholeLine: true,
-              inlineClassName: `line-decoration-text-${colour}`,
-            },
-          },
-        ];
+    // Register the command
+    const myCustomCommandId = monaco.editor.registerCommand('askCodeGPTCommand', (accessor, ...args) => {
+      const [uri, range, problemMessage, lineCode] = args;
+      askCodeGPT(uri, range, problemMessage, lineCode);
+    })
+    monaco.languages.registerCodeActionProvider('c', {
+      provideCodeActions: (model, range, context, token) => {
+        const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+        const relevantMarker = markers.find(marker => marker.startLineNumber === range.startLineNumber);
     
-        // Apply decorations
-        decorationsRef.current.set(newDecorations);
-      
+        if (!relevantMarker) {
+          return { actions: [], dispose: () => {} };
+        }
+    
+        // Extract the code on the relevant line
+        const lineCode = model.getLineContent(relevantMarker.startLineNumber);
+    
+        const quickFix = {
+          title: "Ask CodeGPT",
+          diagnostics: [relevantMarker],
+          kind: "quickfix",
+          command: {
+            id: 'askCodeGPTCommand',
+            title: "Ask CodeGPT",
+            arguments: [model.uri, range, relevantMarker.message, lineCode], // Pass message and line code
+          },
+          isPreferred: true,
+        };
+    
+        return {
+          actions: [quickFix],
+          dispose: () => {},
+        };
+      },
+    });
 
-      //   decorationCollection.append([
-      //     {
-      //       range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-      //       options: {
-      //         isWholeLine: true,
-      //         inlineClassName: `line-decoration-${colour}`,
-      //       },
-      //     },
-      //   ]
-      // );
-      
-      
-      // setDecorations(newDecorations);
-    }
   };
 
-  
+  const askCodeGPT = (uri: monaco.Uri, range: monaco.Range, problemMessage: string, lineCode: string) => {
+    console.log('Problem:', problemMessage);
+    console.log('Code on line:', lineCode);
+    // Additional logic for handling the problem message and code line
+    let prompt = '```' + code + '```';
+    if (problemMessage.includes("CLANG:")) {
+      prompt = prompt + '\n In my code, I received an error message of "' + problemMessage + '" for the line of code ```' + lineCode + ' ```when compiling my code with clang. ';
+    } else if (problemMessage.includes("MEMORY LEAK:")) {
+      prompt = prompt + '\n In my code, I received a memory leak error message of "' + problemMessage + '" for the line of code ```' + lineCode + '```. ';
+    } else if (problemMessage.includes("BUFFER OVERFLOW:")) {
+      prompt = prompt + '\n In my code, I received a buffer overflow message of "' + problemMessage + '" for the line of code ```' + lineCode + '```. ';
+    } else {
+      prompt = prompt + '\n In my code, I received an error message of "' + problemMessage + '" for the line of code ``` ' + lineCode + '```. ';
+    }
+    prompt = prompt + 'Can you explain why I have this error and how to solve this issue?'
+    setPassedPrompt(prompt);
+  };
 
-  // Function to highlight a specific line
-  const removeHighlightLine = (lineNumber: number) => {
-    if (editorRef.current) {
-      // Get all decorations of the line
-      const decorationsOfLine = editorRef.current.getLineDecorations(lineNumber);
-      console.log('decorationsOfLine of line number ', lineNumber , ' is ', decorationsOfLine);
-      if (decorationsOfLine !== null) {
-        // From the decorations object, get the id of each decoration and add it to decorationsIds
-        const decorationIds = decorationsOfLine.map(decoration => decoration.id);
-        // Give list of IDs for removaDecorations to remove
-        editorRef.current.removeDecorations(decorationIds);
+  const applyMarkers = ():monaco.editor.IMarkerData[] => {
+    monaco.languages.register({ id: 'c' });
+
+    monaco.languages.setLanguageConfiguration('c', {
+      // Ensure C language supports diagnostics markers
+    });
+    if (editorRef.current && codeError.length !== 0 ) {
+      const model = editorRef.current.getModel();
+      console.log('editor ref in useEffect is ', editorRef.current);
+      console.log('model in useEffect is ', model);
+
+      console.log('Model:', editorRef.current.getModel());
+      console.log('Model language:', model.getLanguageId());
+      // Clear any previous markers
+      monaco.editor.setModelMarkers(model, 'c', []);
+      
+      const lnRegex = /ln:\s*(\d+)/g;
+      const lnJsonRegex = /ln":\s*(\d+)/g;
+      const clRegex = /cl:\s*(\d+)/g;
+      const lnRegexcl = /ln:\s*(\d+)\s*cl:\s*(\d+)/;
+      const quotedRegex = /"ln":\s*(\d+),\s*"cl":\s*(\d+)/;
+      const clangRegex = /example.c:(\d+):(\d+)/;
+      let markers: monaco.editor.IMarkerData[] = []
+      codeError.map((error) => {
+        let match;
+        let lnNum = 0;
+        let clNum = 1;
+        let severity = monaco.MarkerSeverity.Error;
+        match = error.match(lnRegexcl);
+        if (match) {
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
+        }
+
+        match = error.match(quotedRegex);
+        if (match) {
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
+        }
+        match = error.match(clangRegex);
+        if (match) {
+          console.log(match);
+          lnNum = parseInt(match[1], 10);
+          clNum = parseInt(match[2], 10);
+          if (error.includes('warning:')) {
+            severity = monaco.MarkerSeverity.Warning;
+          }
+        }
+
+        if (lnNum !== 0) {
+          markers.push({
+            code: null,
+            source: 'c',
+            startLineNumber: lnNum,
+            startColumn: clNum,
+            endLineNumber: lnNum,
+            endColumn: model.getLineLength(lnNum) + 1,
+            message: error,
+            severity: monaco.MarkerSeverity.Error,
+          })
+        }
+      })
+      console.log('markers is ', markers);
+      return markers;
+      // monaco.editor.setModelMarkers(model, 'c', markers);
+      // console.log('Current Markers:', monaco.editor.getModelMarkers({ resource: model.uri }));
+
+    }
+    return [];
+  }
+
+  const memoryLeakError = (errorMsg:string) => {
+    const lnRegex = /ln:\s*(\d+)/g;
+      const lnJsonRegex = /ln":\s*(\d+)/g;
+      const clRegex = /cl:\s*(\d+)/g;
+      let match;
+      let lnNum = 0;
+      let clNum = 1;
+
+      match = errorMsg.match(lnRegex);
+      if (match) {
+        const lineAndNum = match[0].split(' ');
+        lnNum = parseInt(lineAndNum[1], 10);
       }
-    }
-  };
 
-  const textColorToRed = (lineNumber: number, colour: string) => {
-    // if (editorRef.current) {
-    //   const newDecorations = editorRef.current.deltaDecorations(
-    //     decorations,
-    //     [
-    //       {
-    //         range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-    //         options: {
-    //           isWholeLine: true,
-    //           inlineClassName: `line-decoration-text-${colour}`,
-    //         },
-    //       },
-    //       // {
-    //       //   range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-    //       //   options: {
-    //       //     // isWholeLine: true,
-    //       //     inlineClassName: "myLineDecoration",
-    //       //   },
-    //       // },
-    //     ]
-    //   );
-    //   setDecorations(newDecorations);
-
-    // };
-  } 
+      match = errorMsg.match(clRegex);
+      if (match) {
+        const lineAndNum = match[0].split(' ');
+        clNum = parseInt(lineAndNum[1], 10);
+      }
+      return {
+        'lineNum': lnNum,
+        'columnNum': clNum,
+      }
+  }
 
   useEffect(() => {
+    console.log('useEffect for code error is triggered');
+    console.log('errors is ', codeError);
+    // applyMarkers();
+    if (editorRef.current) {
+      const model = editorRef.current.getModel();
+      if (model) {
+        // model.onDidChangeContent(() => {
+          const markers = applyMarkers();
+          monaco.editor.setModelMarkers(model, 'c', markers);
+          setEditorKey(prevKey => prevKey + 1);
 
-    // if (lineNumToHighlight.size > 0) {
-    //   const colour = lineNumDetails[Array.from(lineNumToHighlight)[lineNumToHighlight.size - 1]]['colour'].slice(1).toLowerCase();
+        // });
+      }
+    }
+    
+  }, [codeError])
 
-    //   textColorToRed(Array.from(lineNumToHighlight)[lineNumToHighlight.size - 1], colour);
-    // }
+
+  useEffect(() => {
     if (decorationsRef !== null && decorationsRef.current !== null) {
       const newDecorations = [];
-      // const selectedLineNum = Array.from(lineNumToHighlight)[lineNumToHighlight.size - 1];
-      // lineNumToHighlight.forEach(lineNum => {
 
-      // });
       for (const lineNum in lineNumDetails) {
         const colour = lineNumDetails[lineNum]['colour'].slice(1).toLowerCase();
         let decoration = {};
-        // if (selectedLineNum === parseInt(lineNum)) {
         if (lineNumToHighlight.has(parseInt(lineNum))) {
           decoration = {
             range: new monaco.Range(parseInt(lineNum), 1, parseInt(lineNum), 1),
@@ -194,41 +263,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
         
         newDecorations.push(decoration);
       }
-      // oldLineHighlights.add(parseInt(lineNum));
       decorationsRef.current.set(newDecorations);
     }
   }, [lineNumToHighlight]);
 
   useEffect(() => {
-    // console.log('triggering use effect for lineNumDetails');
-    // console.log('oldHighlight', oldHighlight);
-    // for (const lineNum of oldHighlight) {
-    //   console.log('removing highlight from lineNum', lineNum);
-    //   removeHighlightLine(lineNum);
-    // }
-    // const oldLineHighlights:Set<number> = new Set<number>();
-    // // removeHighlightLine(oldHighlight);
-    // // decorations.forEach(decoration => editorRef.current?.deltaDecorations([decoration], []));
-    // console.log('lineNumDetails in code Editor', lineNumDetails);
-    // for (const lineNum in lineNumDetails) {
-    //   const colour = lineNumDetails[lineNum]['colour'].slice(1).toLowerCase();
-    //   highlightLine(parseInt(lineNum), colour);
-    //   oldLineHighlights.add(parseInt(lineNum));
-    // }
-    
-    // let i : number = 0;
-    // console.log('lineNumTohighlight in code editor', lineNumToHighlight);
-    // for (const lineNum of lineNumToHighlight) {
-    //   const colour = highlightColours[i % highlightColours.length];
-    //   console.log('highligting lineNum', lineNum, ' with colour ', colour);
-    //   highlightLine(lineNum, colour);
-    //   i++;
-    // }
-
-    // setOldHighlight(oldLineHighlights);
-    // lineNumToHighlight.forEach(lineNum => {
-    //   highlightLine(lineNum, );
-    // });
     if (decorationsRef !== null && decorationsRef.current !== null) {
       const newDecorations = [];
 
@@ -300,6 +339,7 @@ d5f1ec
     <>
     <div>
     <Editor
+      key={editorKey}
       height="90vh"
       language="c"
       theme="vs-light"

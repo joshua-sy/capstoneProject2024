@@ -13,6 +13,7 @@ import './graphsPage.css';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import ShareLZSettingsModal from '../../components/shareLZSettingsModal/shareLZSettingsModal.tsx';
 import { Share } from '@mui/icons-material';
+// import D3Graph from '../../components/output/d3Graph/D3Graph';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
@@ -43,7 +44,7 @@ const compileOptions = [
 const executableOptions = [
   { value: 'mta', label: 'mta' },
   { value: 'saber', label: 'saber' },
-  { value: 'ae', label: 'ae' },
+  { value: 'ae -overflow', label: 'ae' },
 ];
 
 function GraphsPage() {
@@ -103,7 +104,7 @@ function GraphsPage() {
     Node0x151f135b0 [shape=record,color=green,label="{FunExitICFGNode21 \\{fun: main\\{ \\"ln\\": 0, \\"cl\\": 0, \\"fl\\": \\"./test3.c\\" \\}\\}\\nPhiStmt: [Var47 \\<-- ([Var35, ICFGNode20],)]  \\n   ret i32 0, !dbg !41 \\{ \\"ln\\": 27, \\"cl\\": 5, \\"fl\\": \\"./test3.c\\" \\}}"];
   }
   `;
-
+  const [codeError, setCodeError] = useState([])
   const [currCodeLineNum, setCurrCodeLineNum] = useState(0);
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
@@ -111,34 +112,44 @@ function GraphsPage() {
 
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodeOrllvm: string[], colour: string } }>({});
   const [code, setCode] = useState(
-    `#include "stdbool.h"
-// CHECK: ^sat$
+    `#include <stdio.h>
+#include <stdlib.h>
 
-extern int nd(void);
+typedef struct {
+    int *data;
+    int size;
+} IntArray;
 
-extern void svf_assert(bool);
-
-int test(int a, int b){
-    int x,y;
-    x=1; y=1;
-
-    if (a > b) {
-        x++;
-        y++;
-        svf_assert (x == y);
-    } else {
-        x++;
-        svf_assert (x == 2);
+IntArray* createIntArray(int size) {
+    IntArray *arr = malloc(sizeof(IntArray)); // Memory leak: no free for arr
+    arr->size = size;
+    arr->data = malloc(size * sizeof(int)); // Memory leak: no free for arr->data
+    for (int i = 0; i < size; i++) {
+        arr->data[i] = i; // Initialize the array
     }
-    return 0;
+    return arr;
 }
 
-int main(){
-    int a = 1;
-    int b = 2;
-    test(a,b);
+void useIntArray(IntArray *arr) {
+    // Just a placeholder function to simulate use
+    for (int i = 0; i < arr->size; i++) {
+        printf("%d ", arr->data[i]);
+    }
+    printf("n");
+}
+
+int main() {
+    IntArray *array1 = createIntArray(5);
+    IntArray *array2 = createIntArray(10);
+
+    useIntArray(array1);
+    useIntArray(array2);
+
+    // Memory leaks: no free for array1 and array2
+
     return 0;
-}`
+}
+`
   );
 
   const [lineNumToHighlight, setlineNumToHighlight] = useState<Set<number>>(new Set());
@@ -146,6 +157,7 @@ int main(){
   const [llvmIRString, setllvmIRString] = useState('Run the code to see the LLVM IR of your here');
   const [graphs, setGraphs] = useState({});
   const [savedMessages, setSavedMessages] = useState<{ role: string, content: string }[]>([]);
+  const [passedPrompt, setPassedPrompt] = useState('');
 
   const renderComponent = () => {
     switch (currentOutput) {
@@ -162,6 +174,9 @@ int main(){
             code={code}
           />
         );
+        // return (
+        //   <D3Graph dot={icfgGraph}/>
+        // );
       case 'Terminal Output':
         return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
       case 'CodeGPT':
@@ -173,6 +188,7 @@ int main(){
             llvmIR={llvmIRString}
             savedMessages={savedMessages}
             onSaveMessages={setSavedMessages}
+            passedPrompt={passedPrompt}
           />
         );
       case 'LLVMIR':
@@ -182,19 +198,96 @@ int main(){
     }
   };
 
+  useEffect(() => {
+    if (passedPrompt !== '') {
+      setCurrentOutput('CodeGPT');
+      renderComponent();
+    }
+  }, [passedPrompt])
+
   const submitCode = async () => {
     const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
     const selectedExecutableOptionsList = selectedExecutableOptions.map(option => option.value);
+    console.log('selected execitan;e options: ', selectedExecutableOptionsList);
+
     const response = await submitCodeFetch(code, selectedCompileOptionString, selectedExecutableOptionsList);
-    const respGraphs = response.graphs;
-    const graphObj = {};
-    respGraphs.forEach(graph => {
-      graphObj[graph.name] = graph.graph;
-    });
-    setGraphs(graphObj);
-    setllvmIRString(response.llvm);
-    setTerminalOutputString(response.output);
+    console.log('response from submit', response);
+    if ('name' in response) {
+      if (response.name == 'Resultant Graphs') {
+        const respGraphs = response.graphs;
+        const graphObj = {};
+        respGraphs.forEach(graph => {
+          graphObj[graph.name] = graph.graph;
+        });
+        setGraphs(graphObj);
+        setllvmIRString(response.llvm);
+        setTerminalOutputString(response.output);
+        console.log(response.error);
+        setCodeError(formatErrorLogs(response.error));
+      } else if (response.name == 'Clang Error') {
+        setTerminalOutputString(response.error);
+        setCodeError(formatClangErrors(response.error));
+      }
+      
+    }
+    
   };
+
+  // It formats the error messages it receives from clang
+  // Function is used if it did not pass clang
+  const formatClangErrors = (stdErr: string) => {
+    const errorList = stdErr.split('\n');
+    console.log('formatClangErrors',errorList);
+    let errorMsg = '';
+    const regex = /example.c:(\d+):(\d+)/;
+    let formattedErrors = [];
+    // The last element of the array is sentence on how many errors and warnings were generated
+    for (let i = 0; i < errorList.length - 1; i++) {
+      let match = errorList[i].match(regex);
+      if (match) {
+        console.log('match', errorList[i]);
+        if (errorMsg !== '') {
+          formattedErrors.push(errorMsg);
+        }
+        errorMsg = 'CLANG:\n' + errorList[i];
+      } else {
+        errorMsg = errorMsg + '\n' +errorList[i];
+      }
+    }
+    if (errorMsg !== '') {
+      formattedErrors.push(errorMsg);
+    }
+    console.log('formattedErrors', formattedErrors);
+
+    return formattedErrors;
+
+  }
+
+  // It formats the Error messages it receives
+  // This is used when the code is compiled by clang
+  const formatErrorLogs = (stdErr: string) => {
+    console.log('std err is ', stdErr);
+    const errorList = stdErr.split('\n');
+    console.log('errorList is ', errorList)
+    let formattedErrors = [];
+    let i = 0;
+    let numOverflow = 0;
+    while (i < errorList.length) {
+      if (errorList[i].includes('NeverFree')) {
+        formattedErrors.push('MEMORY LEAK: ' + errorList[i]);
+      } else if (errorList[i].includes('######################Buffer Overflow')) {
+        numOverflow = parseInt(errorList[i].match(/\d+/)[0], 10);
+      } else if (errorList[i].includes("---------------------------------------------") && numOverflow > 0) {
+        formattedErrors.push("BUFFER OVERFLOW: " + errorList[i+1] + errorList[i+2]);
+        i = i + 2;
+        numOverflow--;
+      }
+
+      i++;
+    }
+    return formattedErrors;
+
+  }
 
   const resetDefault = () => {
     setSelectedCompileOptions([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
@@ -210,8 +303,6 @@ int main(){
   const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
 
   const createLZStringUrl = () => {
-    console.log(window.location.pathname);
-    console.log(window.location.href);
     const url = window.location.href;
     const currRoute = url.split('?')[0];
     const savedSettings = {
@@ -232,14 +323,10 @@ int main(){
         compressedFromURL = compressedFromURL.replace('${', '');
         const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
         decompressedSettings = JSON.parse(decompressedSettingsString);
-        console.log(decompressedSettings); // This is the original string
       } else {
-        console.log(compressedFromURL);
         const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
-        console.log(decompressedSettings); // This is the original string
         decompressedSettings = JSON.parse(decompressedSettingsString);
       }
-      console.log(decompressedSettings);
       if (decompressedSettings.hasOwnProperty('code')) {
         setCode(decompressedSettings.code);
       } 
@@ -249,8 +336,6 @@ int main(){
       if (decompressedSettings.hasOwnProperty('selectedExecutableOptions')) {
         setSelectedExecutableOptions(decompressedSettings.selectedExecutableOptions);
       }
-    } else {
-      console.log('nothing compressed')
     }
   }, []);
   const [openShareModal, setOpenShareModal] = React.useState(false);
@@ -261,7 +346,6 @@ int main(){
   useEffect(() => {
     if (openShareModal === true) {
       setShareLink(createLZStringUrl());
-      console.log('open Share modal is true')
     }
   }, [openShareModal]);
     
@@ -305,6 +389,8 @@ int main(){
             lineNumDetails={lineNumDetails}
             setCurrCodeLineNum={setCurrCodeLineNum}
             codeFontSize={codeFontSize}
+            codeError={codeError}
+            setPassedPrompt={setPassedPrompt}
           />
         </div>
         <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>

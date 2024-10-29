@@ -463,7 +463,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       const modifiedNodes = [];
       nodesOnly.forEach(originalNode => {
         if (originalNode.includes('shape')) {
-          lineNumDetails[currCodeLineNum]['nodes'].forEach(nodeId => {
+          lineNumDetails[currCodeLineNum]['nodeOrllvm'].forEach(nodeId => {
             if (originalNode.includes(nodeId)) {
               const addingFontColour = ", fontcolor=red];"
               const modifiedString = originalNode.substring(0, originalNode.length - 2) + addingFontColour;
