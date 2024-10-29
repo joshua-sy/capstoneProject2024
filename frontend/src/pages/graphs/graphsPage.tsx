@@ -156,6 +156,7 @@ int main() {
   const [llvmIRString, setllvmIRString] = useState('Run the code to see the LLVM IR of your here');
   const [graphs, setGraphs] = useState({});
   const [savedMessages, setSavedMessages] = useState<{ role: string, content: string }[]>([]);
+  const [passedPrompt, setPassedPrompt] = useState('');
 
   const renderComponent = () => {
     switch (currentOutput) {
@@ -183,6 +184,7 @@ int main() {
             llvmIR={llvmIRString}
             savedMessages={savedMessages}
             onSaveMessages={setSavedMessages}
+            passedPrompt={passedPrompt}
           />
         );
       case 'LLVMIR':
@@ -220,6 +222,8 @@ int main() {
     
   };
 
+  // It formats the error messages it receives from clang
+  // Function is used if it did not pass clang
   const formatClangErrors = (stdErr: string) => {
     const errorList = stdErr.split('\n');
     console.log('formatClangErrors',errorList);
@@ -248,6 +252,8 @@ int main() {
 
   }
 
+  // It formats the Error messages it receives
+  // This is used when the code is compiled by clang
   const formatErrorLogs = (stdErr: string) => {
     console.log('std err is ', stdErr);
     const errorList = stdErr.split('\n');
@@ -373,6 +379,7 @@ int main() {
             setCurrCodeLineNum={setCurrCodeLineNum}
             codeFontSize={codeFontSize}
             codeError={codeError}
+            setPassedPrompt={setPassedPrompt}
           />
         </div>
         <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>

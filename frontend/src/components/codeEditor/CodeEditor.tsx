@@ -11,12 +11,13 @@ interface CodeEditorProps {
   setCurrCodeLineNum: (lineNum: number) => void;
   codeFontSize: number;
   codeError : string[];
+  setPassedPrompt: (prompt: string) => void;
 }
 
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize, codeError}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize, codeError, setPassedPrompt}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
@@ -106,6 +107,18 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     console.log('Problem:', problemMessage);
     console.log('Code on line:', lineCode);
     // Additional logic for handling the problem message and code line
+    let prompt = '```' + code + '```';
+    if (problemMessage.includes("CLANG:")) {
+      prompt = prompt + '\n In my code, I received an error message of "' + problemMessage + '" for the line of code ```' + lineCode + ' ```when compiling my code with clang. ';
+    } else if (problemMessage.includes("MEMORY LEAK:")) {
+      prompt = prompt + '\n In my code, I received a memory leak error message of "' + problemMessage + '" for the line of code ```' + lineCode + '```. ';
+    } else if (problemMessage.includes("BUFFER OVERFLOW:")) {
+      prompt = prompt + '\n In my code, I received a buffer overflow message of "' + problemMessage + '" for the line of code ```' + lineCode + '```. ';
+    } else {
+      prompt = prompt + '\n In my code, I received an error message of "' + problemMessage + '" for the line of code ``` ' + lineCode + '```. ';
+    }
+    prompt = prompt + 'Can you explain why I have this error and how to solve this issue?'
+    setPassedPrompt(prompt);
   };
 
   const applyMarkers = ():monaco.editor.IMarkerData[] => {

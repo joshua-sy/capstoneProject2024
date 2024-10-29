@@ -25,6 +25,8 @@ void useIntArray(IntArray *arr) {
 }
 
 int main() {
+    int arr[10];
+    arr[9] = 0;
     IntArray *array1 = createIntArray(5);
     IntArray *array2 = createIntArray(10);
 
