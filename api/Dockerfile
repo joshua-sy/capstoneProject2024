@@ -22,7 +22,21 @@ EXPOSE 5285
 # Copy the published output from the build stage
 COPY --from=build-env /App/out .
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git wget cmake gcc g++ libtinfo5 libz-dev libzstd-dev \
+    zip libncurses5-dev xz-utils unzip make
+
+# Clone SVF
+RUN git clone https://github.com/SVF-tools/SVF.git
+
+# Build SVF
+WORKDIR /App/SVF
+RUN chmod +x build.sh
+RUN /bin/bash -c "./build.sh"
+
 # Optionally copy other files that may not be part of the publish output
+WORKDIR /App
 COPY . .  
 
 # Set the entry point for the application
