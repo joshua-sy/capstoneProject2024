@@ -24,7 +24,7 @@ COPY --from=build-env /App/out .
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    git wget cmake gcc g++ libtinfo5 libz-dev libzstd-dev \
+    git wget cmake gcc g++ clang libtinfo5 libz-dev libzstd-dev \
     zip libncurses5-dev xz-utils unzip make
 
 # Clone SVF

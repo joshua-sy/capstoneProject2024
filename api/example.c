@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 #include <stdio.h>
 #include <stdlib.h>
-=======
-#include "stdbool.h"
-// CHECK: ^sat$
->>>>>>> main
 
 typedef struct {
     int *data;
