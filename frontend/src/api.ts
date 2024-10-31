@@ -17,7 +17,7 @@ const submitCodeFetch = async (code: string, compileOptions: string, executables
   //   throw error;
   // }
   // Define the URL of the API endpoint
-const url = 'http://localhost:5285/api/controller';
+const url = 'https://api-morning-fog-5849.fly.dev/api/controller';
 
 // Define the request body
 const requestBody = {
