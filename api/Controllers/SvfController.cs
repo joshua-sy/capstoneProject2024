@@ -31,6 +31,7 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RequestBody requestBody)
         {
+            
             // Deletes .dot files in the directory
             foreach (string f in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.dot"))
             {
@@ -95,7 +96,7 @@ namespace api.Controllers
             {
                 foreach (var executable in requestBody.ExtraExecutables)
                 {
-                    executablesScript += $"\n./{executable} example.ll";
+                    executablesScript += $"\n./SVF/Release-build/bin/{executable} example.ll";
                 }
             }
 
@@ -203,7 +204,7 @@ namespace api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-          var response = new { message = "Hello World from the SVF controller :D" };
+          var response = new { message = "Hello World from the SVF controller :D\n" };
           return Ok(response);        
         }
     }

@@ -17,7 +17,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:6c4df091e4e531bb93bdbfe7e7f0998e
 
 # Set the working directory for the runtime image
 WORKDIR /App
-EXPOSE 5285
+EXPOSE 8080
+
+# Set the environment variable to listen on port 5285
+# ENV ASPNETCORE_URLS=http://+:5285
 
 # Copy the published output from the build stage
 COPY --from=build-env /App/out .
@@ -27,8 +30,12 @@ RUN apt-get update && \
     git wget cmake gcc g++ clang libtinfo5 libz-dev libzstd-dev \
     zip libncurses5-dev xz-utils unzip make
 
-# Clone SVF
-RUN git clone https://github.com/SVF-tools/SVF.git
+# Clone SVF or pull the latest changes if it already exists
+RUN if [ -d "SVF" ]; then \
+        cd SVF && git pull; \
+    else \
+        git clone --depth 1 https://github.com/SVF-tools/SVF.git; \
+    fi
 
 # Build SVF
 WORKDIR /App/SVF
