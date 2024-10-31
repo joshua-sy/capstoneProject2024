@@ -9,10 +9,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173") // Change this to your frontend's URL
+        builder => builder.WithOrigins("http://localhost:5173", "https://websvf.vercel.app") // Change this to your local frontend's URL
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
+
+
 
 var app = builder.Build();
 
@@ -23,10 +25,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// if (!app.Environment.IsDevelopment())
-// {
-//     app.UseHttpsRedirection();
-// }
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 
