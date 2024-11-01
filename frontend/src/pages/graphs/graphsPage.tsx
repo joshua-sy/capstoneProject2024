@@ -15,6 +15,7 @@ import './graphsPage.css';
 
 type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 
+
 const compileOptions = [
   { value: '-g', label: '-g' },
   { value: '-c', label: '-c' },
@@ -36,6 +37,7 @@ const executableOptions = [
 ];
 
 function GraphsPage() {
+  
   const inlineStyles = {
     container: {
       display: 'flex',
@@ -97,7 +99,6 @@ function GraphsPage() {
   const [currentOutput, setCurrentOutput] = useState<OutputType>('Graph');
   const [selectedCompileOptions, setSelectedCompileOptions] = useState([compileOptions[0], compileOptions[1], compileOptions[2], compileOptions[3], compileOptions[4]]);
   const [selectedExecutableOptions, setSelectedExecutableOptions] = useState([executableOptions[0], executableOptions[1], executableOptions[2]]);
-
   const [lineNumDetails, setLineNumDetails] = useState<{ [key: string]: { nodes: string[], colour: string } }>({});
   const [code, setCode] = useState(
     `
@@ -196,9 +197,41 @@ int main(){
   const handleOpenSettings = () => setOpenSettings(true);
   const handleCloseSettings = () => setOpenSettings(false);
   const [codeFontSize, setCodeFontSize] = useState(16);
-
   const [llvmFontSize, setllvmFontSize] = useState(16);
   const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
+
+
+  const [isCodeLeft, setIsCodeLeft] = useState(true);
+
+  const [draggedElement, setDraggedElement] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string) => {
+      setDraggedElement(element);
+      e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.currentTarget.classList.add("drag-over");
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+      e.currentTarget.classList.remove("drag-over");
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("drag-over");
+
+    if (draggedElement && draggedElement !== target) {
+        // Toggle the layout based on which div is dragged and where it is dropped
+        if ((draggedElement === "code" && target === "output") || (draggedElement === "output" && target === "code")) {
+            setIsCodeLeft(!isCodeLeft);  // Flip the layout position
+        }
+    }
+    setDraggedElement(null);
+};
+
 
   return (
     <>
@@ -214,7 +247,16 @@ int main(){
       />
       <NavBar openSettings={handleOpenSettings} />
       <div id='graph-page-container' style={inlineStyles.container}>
-        <div id='graph-page-code-container' style={{ width: '50%' }}>
+      <div
+          id='graph-page-code-container'
+          draggable
+          onDragStart={(e) => handleDragStart(e, "code")}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "code")}
+          className={isCodeLeft ? 'left' : 'right'}
+          style={{ width: '50%' }}
+      >
           <SubmitCodeBar
             submitEvent={submitCode}
             resetCompileOptions={resetDefault}
@@ -234,7 +276,16 @@ int main(){
             codeFontSize={codeFontSize}
           />
         </div>
-        <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
+        <div
+            id='graph-page-output-container'
+            draggable
+            onDragStart={(e) => handleDragStart(e, "output")}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, "output")}
+            className={isCodeLeft ? 'right' : 'left'}
+            style={{ width: '50%', display: 'flex', flexDirection: 'column' }}
+        >
           <OutputMenuBar setCurrentOutput={setCurrentOutput} />
           <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
         </div>

@@ -3,6 +3,26 @@
 }
 
 #graph-page-container{
+  display: flex;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
+}
+
+.left {
+  order: 1;
+}
+
+.right {
+  order: 2;
+}
+
+
+#graph-page-code-container,
+#graph-page-output-container {
+  border: 1px solid transparent;
+  transition: border 0.2s;
+}
+
+.drag-over {
+  border: 2px dashed #007bff;
 }
