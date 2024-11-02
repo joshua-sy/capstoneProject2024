@@ -5,7 +5,9 @@ import Button from '@mui/material/Button';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExecutableOptionsMenu from '../executablesOptionsMenu/executablesOptionsMenu';
-
+import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
+import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
+import FontSizeMenu from '../../fontSizeMenu/FontSizeMenu';
 
 
 interface CompileOption {
@@ -28,6 +30,8 @@ interface SubmitCodeBarProps {
   setSelectedExecutableOptions: (selectedCompileOptions: executableOption[]) => void;
   selectedExecutableOptions: executableOption[];
   executableOptions: executableOption[];
+  codeFontSize: number;
+  setCodeFontSize: () => void;
 
 }
 
@@ -40,6 +44,8 @@ const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
   setSelectedExecutableOptions,
   selectedExecutableOptions,
   executableOptions,
+  codeFontSize,
+  setCodeFontSize
 
 }) => {
   return (
@@ -50,6 +56,16 @@ const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
           <CompileOptionsMenu compileOptions={compileOptions} setSelectedCompileOptions={setSelectedCompileOptions} selectedCompileOptions={selectedCompileOptions}/>
           <h5>Select executable options: </h5>
           <ExecutableOptionsMenu setSelectedExecutableOptions={setSelectedExecutableOptions} selectedExecutableOptions={selectedExecutableOptions} executableOptions={executableOptions}/>
+          <div id='submit-code-bar-btn-container'>
+            {/* <div className='submit-codeBar-font-size-button-div'>
+              <TextDecreaseIcon fontSize='small'/>
+            </div>
+            <div className='submit-codeBar-font-size-button-div'>
+              <TextIncreaseIcon fontSize='small'/>
+            </div> */}
+            <FontSizeMenu fontSize={codeFontSize} setFontSize={setCodeFontSize}/>
+            
+          </div>
         </div>
        <div id='submit-code-bar-button-container'>
           <div>

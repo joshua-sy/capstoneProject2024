@@ -317,6 +317,7 @@ int main() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     let compressedFromURL = urlParams.get('data');
+    console.log('compressed from url ', compressedFromURL);
     if (compressedFromURL) {
       let decompressedSettings: DecompressedSettings = {};
       if (compressedFromURL.startsWith('${')) {
@@ -327,8 +328,11 @@ int main() {
         const decompressedSettingsString = decompressFromEncodedURIComponent(compressedFromURL);
         decompressedSettings = JSON.parse(decompressedSettingsString);
       }
+      console.log(decompressedSettings);
       if (decompressedSettings.hasOwnProperty('code')) {
+        console.log('decompressed settings.code is ', decompressedSettings.code)
         setCode(decompressedSettings.code);
+        console.log('code is ', code);
       } 
       if (decompressedSettings.hasOwnProperty('selectedCompileOptions')) {
         setSelectedCompileOptions(decompressedSettings.selectedCompileOptions);
@@ -338,6 +342,7 @@ int main() {
       }
     }
   }, []);
+  
   const [openShareModal, setOpenShareModal] = React.useState(false);
   const handleOpenShareModal = () => setOpenShareModal(true);
   const handleCloseShareModal = () => setOpenShareModal(false);
@@ -381,6 +386,9 @@ int main() {
             executableOptions={executableOptions}
             selectedExecutableOptions={selectedExecutableOptions}
             setSelectedExecutableOptions={setSelectedExecutableOptions}
+            codeFontSize={codeFontSize}
+            setCodeFontSize={setCodeFontSize}
+
           />
           <CodeEditor
             code={code}

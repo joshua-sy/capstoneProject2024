@@ -41,7 +41,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
       fontSize: codeFontSize,
       renderValidationDecorations: 'on',
      });
-     monaco.languages.register({ id: 'c' });
+    monaco.languages.register({ id: 'c' });
 
     monaco.languages.setLanguageConfiguration('c', {});
 
@@ -105,6 +105,18 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
 
   };
 
+
+  // useEffect(() => {
+  //   if (editorRef.current) {
+  //     const model = editorRef.current.getModel();
+  //     if (model && model.getValue() !== code) {
+  //       console.log('setting code to', code);
+  //       model.setValue(code);
+  //     }
+  //     setEditorKey(prevKey => prevKey + 1);
+
+  //   }
+  // }, [code]);
   const askCodeGPT = (uri: monaco.Uri, range: monaco.Range, problemMessage: string, lineCode: string) => {
     // Additional logic for handling the problem message and code line
     let prompt = '```' + code + '```';
@@ -220,7 +232,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
       }
     }
     
-  }, [codeError])
+  }, [codeError]);
+
+  // Used to detect for any changes in code
+  // This is needed for when lz string compression calls setcode
+  useEffect(() => {    
+    if (editorRef.current) {
+      const model = editorRef.current.getModel();
+      if (model && model.getValue() !== code) {
+        model.setValue(code);
+        setEditorKey(prevKey => prevKey + 1);
+      }
+    } 
+  }, [code, editorRef.current]);
 
 
   useEffect(() => {
@@ -321,6 +345,7 @@ d5f1ec
     `;
     document.head.appendChild(style);
   }, []);
+  console.log('code in editor is ', code);
 
   return (
     <>
