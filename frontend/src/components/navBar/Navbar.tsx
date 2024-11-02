@@ -6,10 +6,8 @@ import ShareIcon from '@mui/icons-material/Share';
 
 function Navbar( 
   {
-    openSettings,
     openShare,
   }: {
-    openSettings: () => void,
     openShare: () => void
   }
 ) {
@@ -20,7 +18,6 @@ function Navbar(
         <img src={svfLogo} alt='svf-logo' id='svf-logo' />
       {/* </a> */}
       <div>
-        <SettingsIcon onClick={openSettings} id='settings-icon'/>
         <ShareIcon onClick={openShare} id='share-icon'/>
       </div>
       
