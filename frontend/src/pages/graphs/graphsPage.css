@@ -16,13 +16,12 @@
   order: 2;
 }
 
-
-#graph-page-code-container,
 #graph-page-output-container {
-  border: 1px solid transparent;
-  transition: border 0.2s;
+  border-right: 2px solid #d3d3d3;
+  transition: order 0.3s ease, border 0.2s ease;
 }
 
-.drag-over {
+#graph-page-code-container.drag-over,
+#graph-page-output-container.drag-over {
   border: 2px dashed #007bff;
 }
