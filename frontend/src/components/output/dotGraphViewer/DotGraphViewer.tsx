@@ -492,16 +492,27 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       setCurrentGraph(graphKey);
     }
   }
-  // const containerRef = useRef(null);
-  // const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  // useEffect(() => {
-  //   if (containerRef.current) {
-  //     const { width, height } = containerRef.current.getBoundingClientRect();
-  //     setDimensions({ width, height });
-  //   }
-  // }, []);
+  // Keep a reference of the graphviz component to be able to use its built in functions such as resetZoom
+  const graphvizInstance = useRef(null);
 
+  const resetZoom = useCallback(() => {
+    if (graphvizInstance.current) {
+      graphvizInstance.current.resetZoom();
+    }
+  }, [graphvizInstance]);
+
+  useEffect(() => {
+    if (graphRef.current) {
+      graphvizInstance.current = graphviz(graphRef.current)
+        .height(graphHeight)
+        .width(graphWidth)
+        .zoom(true)
+        .renderDot(graphString);
+    }
+  }, [graphString]);
+
+  
 
 
   return (
@@ -523,23 +534,23 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         {/* <div style={{ position: "absolute", }}>
           <button onClick={resetZoom}>Reset</button>
         </div> */}
+        <button onClick={resetZoom}>Reset Zoom</button>
         <div ref={graphRef} id="graphviz-container">
-        {graphString ? (
-          <Graphviz
-            dot={graphString}
-            options={{ 
-              zoom: true, 
-              width: graphWidth,
-              height: graphHeight,
-              useWorker: false,
-              // zoomScaleExtent: [0.5, 2],
-              // zoomTranslateExtent: [[-1000, -1000], [1000, 1000]],
-            }}
-            // ref={ref}
-          />
-        ) : (
-          <p>No graph to display</p>
-        )}
+          {graphString ? (
+            <Graphviz
+              dot={graphString}
+              options={{ 
+                zoom: true, 
+                width: graphWidth,
+                height: graphHeight,
+                useWorker: false,
+                // zoomScaleExtent: [0.5, 2],
+                // zoomTranslateExtent: [[-1000, -1000], [1000, 1000]],
+              }}
+            />
+          ) : (
+            <p>No graph to display</p>
+          )}
         </div>
         
       </div>
