@@ -17,6 +17,7 @@
 }
 
 #graph-page-output-container {
+  position: relative;
   border-right: 2px solid #d3d3d3;
   transition: order 0.3s ease, border 0.2s ease;
 }

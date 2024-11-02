@@ -138,40 +138,40 @@ int main(){
   const [graphs, setGraphs] = useState({});
   const [savedMessages, setSavedMessages] = useState<{ role: string, content: string }[]>([]);
 
-  const renderComponent = () => {
-    switch (currentOutput) {
-      case 'Graph':
-        return (
-          <DotGraphViewer
-            dotGraphString={callGraph}
-            lineNumToHighlight={lineNumToHighlight}
-            setlineNumToHighlight={setlineNumToHighlight}
-            graphObj={graphs}
-            setLineNumDetails={setLineNumDetails}
-            lineNumDetails={lineNumDetails}
-            currCodeLineNum={currCodeLineNum}
-            code={code}
-          />
-        );
-      case 'Terminal Output':
-        return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
-      case 'CodeGPT':
-        return (
-          <CodeGPT
-            code={code}
-            graphs={graphs}
-            terminalOutput={terminalOutputString}
-            llvmIR={llvmIRString}
-            savedMessages={savedMessages}
-            onSaveMessages={setSavedMessages}
-          />
-        );
-      case 'LLVMIR':
-        return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} />;
-      default:
-        return null;
-    }
-  };
+  // const renderComponent = () => {
+  //   switch (currentOutput) {
+  //     case 'Graph':
+  //       return (
+  //         <DotGraphViewer
+  //           dotGraphString={callGraph}
+  //           lineNumToHighlight={lineNumToHighlight}
+  //           setlineNumToHighlight={setlineNumToHighlight}
+  //           graphObj={graphs}
+  //           setLineNumDetails={setLineNumDetails}
+  //           lineNumDetails={lineNumDetails}
+  //           currCodeLineNum={currCodeLineNum}
+  //           code={code}
+  //         />
+  //       );
+  //     case 'Terminal Output':
+  //       return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
+  //     case 'CodeGPT':
+  //       return (
+  //         <CodeGPT
+  //           code={code}
+  //           graphs={graphs}
+  //           terminalOutput={terminalOutputString}
+  //           llvmIR={llvmIRString}
+  //           savedMessages={savedMessages}
+  //           onSaveMessages={setSavedMessages}
+  //         />
+  //       );
+  //     case 'LLVMIR':
+  //       return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   const submitCode = async () => {
     const selectedCompileOptionString = selectedCompileOptions.map(option => option.value).join(' ');
@@ -202,21 +202,42 @@ int main(){
 
 
   const [isCodeLeft, setIsCodeLeft] = useState(true);
-
   const [draggedElement, setDraggedElement] = useState<string | null>(null);
+  const [tabPositions, setTabPositions] = useState<Record<OutputType, string>>({
+    Graph: 'main',
+    'Terminal Output': 'main',
+    CodeGPT: 'main',
+    LLVMIR: 'main',
+  });
+  const [draggedTab, setDraggedTab] = useState<OutputType | null>(null);
+  const [isThirdWindowVisible, setIsThirdWindowVisible] = useState(false);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string | OutputType) => {
+    if (typeof element === 'string') {
+      // Dragging the entire container (left or right)
       setDraggedElement(element);
-      e.dataTransfer.effectAllowed = "move";
+    } else {
+      // Dragging a tab
+      setDraggedTab(element);
+    }
+    e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.currentTarget.classList.add("drag-over");
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.preventDefault();
+    e.currentTarget.classList.add("drag-over");
+
+    if (target === 'third-dropzone' && draggedTab) {
+      setIsThirdWindowVisible(true); // Show third window when dragging a tab over dropzone
+    }
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-      e.currentTarget.classList.remove("drag-over");
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.currentTarget.classList.remove("drag-over");
+
+    if (target === 'third-dropzone' && draggedTab) {
+      setIsThirdWindowVisible(false); // Hide third window if tab leaves dropzone
+    }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, target: string) => {
@@ -224,70 +245,147 @@ int main(){
     e.currentTarget.classList.remove("drag-over");
 
     if (draggedElement && draggedElement !== target) {
-        // Toggle the layout based on which div is dragged and where it is dropped
-        if ((draggedElement === "code" && target === "output") || (draggedElement === "output" && target === "code")) {
-            setIsCodeLeft(!isCodeLeft);  // Flip the layout position
-        }
+      if ((draggedElement === "code" && target === "output") || (draggedElement === "output" && target === "code")) {
+        setIsCodeLeft(!isCodeLeft);
+      }
+      setDraggedElement(null);
+    } else if (draggedTab) {
+      setTabPositions((prev) => ({
+        ...prev,
+        [draggedTab]: target === 'third-dropzone' ? 'third' : 'main',
+      }));
+      setDraggedTab(null);
+      setIsThirdWindowVisible(false);
     }
-    setDraggedElement(null);
+  };
+
+  const renderTabContent = (tab: OutputType) => {
+    switch (tab) {
+        case 'Graph':
+            return (
+                <DotGraphViewer
+                    dotGraphString={callGraph}
+                    lineNumToHighlight={lineNumToHighlight}
+                    setlineNumToHighlight={setlineNumToHighlight}
+                    graphObj={graphs}
+                    setLineNumDetails={setLineNumDetails}
+                    lineNumDetails={lineNumDetails}
+                    currCodeLineNum={currCodeLineNum}
+                    code={code}
+                />
+            );
+        case 'Terminal Output':
+            return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
+        case 'CodeGPT':
+            return (
+                <CodeGPT
+                    code={code}
+                    graphs={graphs}
+                    terminalOutput={terminalOutputString}
+                    llvmIR={llvmIRString}
+                    savedMessages={savedMessages}
+                    onSaveMessages={setSavedMessages}
+                />
+            );
+        case 'LLVMIR':
+            return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} />;
+        default:
+            return null;
+    }
 };
 
 
-  return (
+return (
     <>
-      <SettingsModal
-        open={openSettings}
-        handleClose={handleCloseSettings}
-        codeFontSize={codeFontSize}
-        setCodeFontSize={setCodeFontSize}
-        llvmIRFontSize={llvmFontSize}
-        setLLVMIRFontSize={setllvmFontSize}
-        terminalOutputFontSize={terminalOutputFontSize}
-        setTerminalOutputFontSize={setTerminalOutputFontSize}
-      />
-      <NavBar openSettings={handleOpenSettings} />
-      <div id='graph-page-container' style={inlineStyles.container}>
-      <div
-          id='graph-page-code-container'
-          draggable
-          onDragStart={(e) => handleDragStart(e, "code")}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={(e) => handleDrop(e, "code")}
-          className={isCodeLeft ? 'left' : 'right'}
-          style={{ width: '50%' }}
-      >
-          <SubmitCodeBar
-            submitEvent={submitCode}
-            resetCompileOptions={resetDefault}
-            compileOptions={compileOptions}
-            selectedCompileOptions={selectedCompileOptions}
-            setSelectedCompileOptions={setSelectedCompileOptions}
-            executableOptions={executableOptions}
-            selectedExecutableOptions={selectedExecutableOptions}
-            setSelectedExecutableOptions={setSelectedExecutableOptions}
-          />
-          <CodeEditor
-            code={code}
-            setCode={setCode}
-            lineNumToHighlight={lineNumToHighlight}
-            lineNumDetails={lineNumDetails}
-            setCurrCodeLineNum={setCurrCodeLineNum}
+        <SettingsModal
+            open={openSettings}
+            handleClose={handleCloseSettings}
             codeFontSize={codeFontSize}
-          />
-        </div>
-        <div
-            id='graph-page-output-container'
-            draggable
-            onDragStart={(e) => handleDragStart(e, "output")}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, "output")}
-            className={isCodeLeft ? 'right' : 'left'}
-            style={{ width: '50%', display: 'flex', flexDirection: 'column' }}
-        >
-          <OutputMenuBar setCurrentOutput={setCurrentOutput} />
-          <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
+            setCodeFontSize={setCodeFontSize}
+            llvmIRFontSize={llvmFontSize}
+            setLLVMIRFontSize={setllvmFontSize}
+            terminalOutputFontSize={terminalOutputFontSize}
+            setTerminalOutputFontSize={setTerminalOutputFontSize}
+        />
+        <NavBar openSettings={handleOpenSettings} />
+        <div id='graph-page-container' style={inlineStyles.container}>
+            {/* Code Container */}
+            <div
+                id='graph-page-code-container'
+                draggable
+                onDragStart={(e) => handleDragStart(e, "code")}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, "code")}
+                className={isCodeLeft ? 'left' : 'right'}
+                style={{ width: '50%' }}
+            >
+                <SubmitCodeBar
+                    submitEvent={submitCode}
+                    resetCompileOptions={resetDefault}
+                    compileOptions={compileOptions}
+                    selectedCompileOptions={selectedCompileOptions}
+                    setSelectedCompileOptions={setSelectedCompileOptions}
+                    executableOptions={executableOptions}
+                    selectedExecutableOptions={selectedExecutableOptions}
+                    setSelectedExecutableOptions={setSelectedExecutableOptions}
+                />
+                <CodeEditor
+                    code={code}
+                    setCode={setCode}
+                    lineNumToHighlight={lineNumToHighlight}
+                    lineNumDetails={lineNumDetails}
+                    setCurrCodeLineNum={setCurrCodeLineNum}
+                    codeFontSize={codeFontSize}
+                />
+            </div>
+
+            <div
+                id='graph-page-output-container'
+                draggable
+                onDragStart={(e) => handleDragStart(e, "output")}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, "output")}
+                className={isCodeLeft ? 'right' : 'left'}
+                style={{ width: '50%', display: 'flex', flexDirection: 'column' }}
+            >
+                <OutputMenuBar
+                    currentOutput={currentOutput}
+                    setCurrentOutput={setCurrentOutput}
+                    onDragStartTab={(tab) => handleDragStart(null, tab)}
+                />
+          {/* Main Output Area */}
+          <div
+            style={{ flexGrow: 1 }}
+            onDrop={(e) => handleDrop(e, "main")}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            {renderTabContent(currentOutput)}
+          </div>
+
+          {/* Third Window (will appear when a tab is dragged into it) */}
+          {Object.values(tabPositions).includes('third') && (
+            <div
+              className="third-window"
+              style={{
+                borderTop: '1px solid #ddd',
+                padding: '10px',
+                marginTop: '10px',
+                minHeight: '200px',
+              }}
+              onDrop={(e) => handleDrop(e, "third")}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              {Object.entries(tabPositions).map(([tab, position]) =>
+                position === 'third' ? (
+                  <div key={tab} draggable>
+                    {renderTabContent(tab as OutputType)}
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>

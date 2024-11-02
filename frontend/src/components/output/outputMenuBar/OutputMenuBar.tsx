@@ -6,39 +6,30 @@ type OutputType = 'Graph' | 'CodeGPT' | 'LLVMIR' | 'Terminal Output';
 interface OutputMenuBarProps {
     currentOutput: OutputType;
     setCurrentOutput: (outputType: OutputType) => void;
+    onDragStartTab: (tab: OutputType) => void;
 }
 
 const OutputMenuBar: React.FC<OutputMenuBarProps> = ({
     currentOutput,
-    setCurrentOutput
+    setCurrentOutput,
+    onDragStartTab,
 }) => {
+    const tabs: OutputType[] = ['Graph', 'Terminal Output', 'CodeGPT', 'LLVMIR'];
+
     return (
         <nav className={styles.navBar}>
             <ul className={styles.navList}>
-                <li 
-                    className={`${styles.navItem} ${currentOutput === 'Graph' ? styles.active : ''}`} 
-                    onClick={() => setCurrentOutput('Graph')}
-                >
-                    Graphs
-                </li>
-                <li 
-                    className={`${styles.navItem} ${currentOutput === 'Terminal Output' ? styles.active : ''}`} 
-                    onClick={() => setCurrentOutput('Terminal Output')}
-                >
-                    Terminal Output
-                </li>
-                <li 
-                    className={`${styles.navItem} ${currentOutput === 'CodeGPT' ? styles.active : ''}`} 
-                    onClick={() => setCurrentOutput('CodeGPT')}
-                >
-                    CodeGPT
-                </li>
-                <li 
-                    className={`${styles.navItem} ${currentOutput === 'LLVMIR' ? styles.active : ''}`} 
-                    onClick={() => setCurrentOutput('LLVMIR')}
-                >
-                    LLVMIR
-                </li>
+                {tabs.map((tab) => (
+                    <li
+                        key={tab}
+                        className={`${styles.navItem} ${currentOutput === tab ? styles.active : ''}`}
+                        onClick={() => setCurrentOutput(tab)}
+                        draggable
+                        onDragStart={() => onDragStartTab(tab)} // Trigger drag start
+                    >
+                        {tab}
+                    </li>
+                ))}
             </ul>
         </nav>
     );

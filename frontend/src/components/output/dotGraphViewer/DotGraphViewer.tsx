@@ -730,6 +730,16 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
+  // This new useEffect hook will ensure the first graph is displayed by default
+  useEffect(() => {
+    if (Object.keys(graphObj).length > 0 && !currentGraph) {
+      const defaultGraphKey = graphObj['svfg'] ? 'svfg' : Object.keys(graphObj)[0];
+      setCurrentGraph(defaultGraphKey);
+      setGraphString(graphObj[defaultGraphKey]);
+    }
+  }, [graphObj]); // Runs whenever graphObj updates
+
+
   useEffect(() => {
     if (containerRef.current) {
       const { width, height } = containerRef.current.getBoundingClientRect();
