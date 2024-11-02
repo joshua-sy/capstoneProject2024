@@ -3,8 +3,6 @@
   flex-direction: row;
   border: solid 1px;
   border-radius: 5px;
-  /* width: 125px; */
-  /* justify-content: space-between; */
 }
 
 #font-size-dropdown-btn {
@@ -16,13 +14,11 @@
 }
 
 #font-size-dropdown-btn:hover {
-  background-color: #d3d3d3; /* Darker background for selected item */
+  background-color: #d3d3d3;
 }
 
 #font-size-drop-menu-item {
   color: black;
-  /* padding: 12px 16px; */
-  /* text-decoration: none; */
   display: block;
   cursor: pointer;
 }
@@ -49,7 +45,7 @@
 }
 
 .font-size-drop-menu-item.selected {
-  background-color: #d3d3d3; /* Darker background for selected item */
+  background-color: #d3d3d3;
 }
 
 .font-size-drop-menu-item:hover {
@@ -57,7 +53,7 @@
 }
 
 
-.submit-codeBar-font-size-button-div {
+.font-size-incDec-button-div {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,8 +61,13 @@
   cursor: pointer;
 }
 
-.submit-codeBar-font-size-button-div:hover {
-  background-color: #d3d3d3; /* Darker background for selected item */
+.font-size-incDec-button-div:hover {
+  background-color: #d3d3d3;
+}
+
+.font-size-incDec-button-div.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 #font-size-decrease {
