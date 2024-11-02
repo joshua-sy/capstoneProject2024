@@ -174,11 +174,8 @@ int main() {
             code={code}
           />
         );
-        // return (
-        //   <D3Graph dot={icfgGraph}/>
-        // );
       case 'Terminal Output':
-        return <TerminalOutput terminalOutputString={terminalOutputString} terminalOutputFontSize={16} />;
+        return <TerminalOutput terminalOutputString={terminalOutputString} />;
       case 'CodeGPT':
         return (
           <CodeGPT
@@ -192,7 +189,7 @@ int main() {
           />
         );
       case 'LLVMIR':
-        return <LLVMIR LLVMIRString={llvmIRString} llvmFontSize={16} code={code} lineNumDetails={lineNumDetails} setLineNumDetails={setLineNumDetails}/>;
+        return <LLVMIR LLVMIRString={llvmIRString} code={code} lineNumDetails={lineNumDetails} setLineNumDetails={setLineNumDetails}/>;
       default:
         return null;
     }
@@ -298,10 +295,6 @@ int main() {
   const handleOpenSettings = () => setOpenSettings(true);
   const handleCloseSettings = () => setOpenSettings(false);
   const [codeFontSize, setCodeFontSize] = useState(16);
-
-  const [llvmFontSize, setllvmFontSize] = useState(16);
-  const [terminalOutputFontSize, setTerminalOutputFontSize] = useState(16);
-
   const createLZStringUrl = () => {
     const url = window.location.href;
     const currRoute = url.split('?')[0];
@@ -357,22 +350,11 @@ int main() {
 
   return (
     <>
-      <SettingsModal
-        open={openSettings}
-        handleClose={handleCloseSettings}
-        codeFontSize={codeFontSize}
-        setCodeFontSize={setCodeFontSize}
-        llvmIRFontSize={llvmFontSize}
-        setLLVMIRFontSize={setllvmFontSize}
-        terminalOutputFontSize={terminalOutputFontSize}
-        setTerminalOutputFontSize={setTerminalOutputFontSize}
-      />
       <ShareLZSettingsModal open={openShareModal}
         handleClose={handleCloseShareModal}
         shareLink={shareLink}
         />
       <NavBar 
-        openSettings={handleOpenSettings} 
         openShare={handleOpenShareModal}
       />
       <div id='graph-page-container' style={inlineStyles.container}>
@@ -386,9 +368,6 @@ int main() {
             executableOptions={executableOptions}
             selectedExecutableOptions={selectedExecutableOptions}
             setSelectedExecutableOptions={setSelectedExecutableOptions}
-            codeFontSize={codeFontSize}
-            setCodeFontSize={setCodeFontSize}
-
           />
           <CodeEditor
             code={code}
@@ -396,7 +375,6 @@ int main() {
             lineNumToHighlight={lineNumToHighlight}
             lineNumDetails={lineNumDetails}
             setCurrCodeLineNum={setCurrCodeLineNum}
-            codeFontSize={codeFontSize}
             codeError={codeError}
             setPassedPrompt={setPassedPrompt}
           />

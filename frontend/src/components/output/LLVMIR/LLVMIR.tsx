@@ -3,10 +3,11 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { llvmIRLanguage } from './llvmIRLanguage';
 import { llvmHighlight } from './llvmIRIdentifier';
+import FontSizeMenu from '../../fontSizeMenu/FontSizeMenu';
+import './llvmir.css';
 
 interface LLVMIRProps {
   LLVMIRString: string;
-  llvmFontSize: number;
   code: string;
   lineNumDetails: { [codeLineNum: string]: { nodeOrllvm: string[], colour: string } };
   setLineNumDetails: (newLineNumDetails: { [codeLineNum: string]: { nodeOrllvm: string[], colour: string } }) => void;
@@ -19,7 +20,8 @@ interface lineNumDetails {
   }
 }
 
-const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, llvmFontSize, code, lineNumDetails, setLineNumDetails}) => {
+const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, code, lineNumDetails, setLineNumDetails}) => {
+  const [fontSize, setFontSize] = useState(16);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [decorationCollection, setDecorationsCollection] = useState<monaco.editor.IEditorDecorationsCollection | null>(null);
@@ -119,14 +121,17 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, llvmFontSize, code, lineNu
   return (
     <>
     <div>
-    <Editor
-      height="90vh"
-      language='llvm-ir'
-      theme="vs-light"
-      value={LLVMIRString}
-      onMount={handleEditorDidMount}
-      options={{ fontSize: llvmFontSize }}
-    />
+      <div id='llvmir-fontSize-container'>
+        <FontSizeMenu fontSize={fontSize} setFontSize={setFontSize}/>
+      </div>
+      <Editor
+        height="90vh"
+        language='llvm-ir'
+        theme="vs-light"
+        value={LLVMIRString}
+        onMount={handleEditorDidMount}
+        options={{ fontSize: fontSize }}
+      />
     </div>
     </>
     

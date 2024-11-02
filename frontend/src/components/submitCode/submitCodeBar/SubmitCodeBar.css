@@ -32,14 +32,10 @@
   align-items: center;
 }
 
-#submit-code-bar-btn-container{
+#submit-codeBar-fontSize-container {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  justify-content: center;
+  /* align-items: center; */
+  padding: 5px;
 }
 
-.submit-codeBar-font-size-button-div {
-  border: solid 1px;
-  border-radius: 2px;
-  padding: 1% 1.5%
-}

@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import './styles.css';
+import FontSizeMenu from '../fontSizeMenu/FontSizeMenu';
 
 interface CodeEditorProps {
   code: string;
@@ -9,7 +10,6 @@ interface CodeEditorProps {
   lineNumToHighlight: Set<number>;
   lineNumDetails: { [key: string]: { nodeOrllvm: string[], colour: string } };
   setCurrCodeLineNum: (lineNum: number) => void;
-  codeFontSize: number;
   codeError : string[];
   setPassedPrompt: (prompt: string) => void;
 }
@@ -17,8 +17,9 @@ interface CodeEditorProps {
 const highlightColours = ['d9f0e9', 'ffffe3', 'e9e8f1', 'ffd6d2', 'd4e5ee', 'd5e4ef', 'ffe5c9', 'e5f4cd', 'f2f2f0', 'e9d6e7', 'edf8ea', 'fff8cf'];
 
 
-const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeFontSize, codeError, setPassedPrompt}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighlight, lineNumDetails, setCurrCodeLineNum, codeError, setPassedPrompt}) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [fontSize, setFontSize] = useState(16);
   const [decorations, setDecorations] = useState<string[]>([]);
   const [oldHighlight, setOldHighlight] = useState<Set<number>>(new Set<number>());
   const [decorationCollection, setDecorationsCollection] = useState<monaco.editor.IEditorDecorationsCollection | null>(null);
@@ -38,7 +39,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
     decorationsRef.current = editor.createDecorationsCollection();
     setDecorationsCollection(editor.createDecorationsCollection());
     editor.updateOptions({ 
-      fontSize: codeFontSize,
+      fontSize: fontSize,
       renderValidationDecorations: 'on',
      });
     monaco.languages.register({ id: 'c' });
@@ -350,15 +351,18 @@ d5f1ec
   return (
     <>
     <div>
-    <Editor
-      key={editorKey}
-      height="90vh"
-      language="c"
-      theme="vs-light"
-      value={code}
-      onMount={handleEditorDidMount}
-      options={{ fontSize: codeFontSize }}
-    />
+      <div id='codeEditor-fontSize-container'>
+        <FontSizeMenu fontSize={fontSize} setFontSize={setFontSize}/>
+      </div>
+      <Editor
+        key={editorKey}
+        height="90vh"
+        language="c"
+        theme="vs-light"
+        value={code}
+        onMount={handleEditorDidMount}
+        options={{ fontSize: fontSize }}
+      />
 
     </div>
 
