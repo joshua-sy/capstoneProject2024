@@ -47,7 +47,7 @@ const FontSizeMenu = ({fontSize, setFontSize}: {fontSize: number, setFontSize: (
 
   return (
     <div id='font-size-menu-container' ref={menuRef}>
-        <div id='font-size-decrease' className='submit-codeBar-font-size-button-div' onClick={() => handleChangeFontSize(fontSize - 1)}>
+        <div id='font-size-decrease' className={`font-size-incDec-button-div ${fontSize === 8 ? 'disabled' : ''}`} onClick={() => handleChangeFontSize(fontSize - 1)}>
         <TextDecreaseIcon fontSize='small'/>
       </div>
       <div id='font-size-drop-down-container'>
@@ -65,7 +65,7 @@ const FontSizeMenu = ({fontSize, setFontSize}: {fontSize: number, setFontSize: (
       </div>
       
 
-      <div id='font-size-increase' className='submit-codeBar-font-size-button-div' onClick={() => handleChangeFontSize(fontSize + 1)}>
+      <div id='font-size-increase' className={`font-size-incDec-button-div ${fontSize === 30 ? 'disabled' : ''}`} onClick={() => handleChangeFontSize(fontSize + 1)}>
         <TextIncreaseIcon fontSize='small'/>
       </div>
     </div>
