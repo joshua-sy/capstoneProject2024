@@ -3,6 +3,7 @@ import { graphviz } from "d3-graphviz";
 import { Graphviz } from "graphviz-react";
 import * as d3 from 'd3';
 import './dotGraphViewer.css';
+// import NodeSelectedLookup from "../../nodeSelectedLookup/NodeSelectedLookup";
 
 
 
@@ -192,7 +193,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         nodes.forEach(node => {
           // getting node Id for debugging purposes. We can remove this later
           const nodeId = node.querySelector('title').textContent;
-          
+          console.log('nodeId is ', nodeId);
+          // const nodeId = node.attr('id');
+
           // Getting all the text in the node. nodeTextList is a list of object 
           const nodeTextList = node.querySelectorAll('text');
           // console.log('nodeTextList', typeof(nodeTextList) ,nodeTextList);
@@ -461,6 +464,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     if (match) {
       const nodesOnly = getNodes(match);
       const modifiedNodes = [];
+      // let selectedNodeIds = [];
       nodesOnly.forEach(originalNode => {
         if (originalNode.includes('shape')) {
           lineNumDetails[currCodeLineNum]['nodeOrllvm'].forEach(nodeId => {
@@ -471,6 +475,11 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
                 original: originalNode,
                 modified: modifiedString
               });
+              // const labelContent = getLabel(originalNode);
+              // selectedNodeIds.push({
+              //   title: nodeId,
+              //   label: labelContent
+              // });
             }
           });
         }
@@ -480,10 +489,22 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         if (graphString !== newGraphString) {
           setGraphString(newGraphString);
         }
+        // setNodeIDList(selectedNodeIds);
       });
     } else {
       console.log('No content found within the curly braces.');
     }
+  }
+
+  const getLabel = (nodeString: string) => {
+    const labelRegex = /label="()"/;
+    console.log('getLabel nodeString: ', nodeString)
+    const match = nodeString.match(labelRegex);
+    let labelContent = 'did not find label content';
+    if (match) {
+      labelContent = match[1];
+    }
+    return labelContent;
   }
   const graphBtnClick = (graphKey: string) => {
     console.log('graphKey clicked btn', graphKey);
@@ -512,8 +533,45 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     }
   }, [graphString]);
 
-  
+  // Zoom to node work in progreess
+  // Can zoom to node but zoom needs work
+  // Graphs could appear in different sizes making it hard
+  // const [nodeIDList, setNodeIDList] = useState([]);
+  // const [nodeIDIndex, setNodeIDIndex] = useState(0);
 
+  // const zoomToNode = useCallback((nodeTitle : string) => {
+  //   console.log('zoomToNOde called and nodeID is ', nodeTitle);
+  //   if (graphRef.current) {
+  //     console.log('graphRef check good');
+  //     const svg = d3.select(graphRef.current).select('svg');
+  //     console.log('svg is ', svg);
+  //     const node = svg.selectAll('g.node').filter(function() {
+  //       return d3.select(this).select('title').text() === nodeTitle;
+  //     });      if (!node.empty()) {
+  //       console.log('we found the node')
+  //       d3.zoomTransform(svg.node() as Element).rescaleX(d3.scaleLinear().domain([0, graphWidth])).range([0, graphWidth]).domain([0, graphHeight]).range([0, graphHeight]);
+  //       const nodeElement = node.node() as SVGGraphicsElement;
+  //       console.log('nodeElement is ', nodeElement)
+  //       const nodeBox = nodeElement.getBBox();
+  //       const nodeCenterX = (nodeBox.x + nodeBox.width / 2);
+  //       const nodeCenterY = (nodeBox.y + nodeBox.height / 2);
+  //       const zoomBehavior = d3.zoom().on('zoom', null); // Remove existing zoom behavior
+  //       svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(graphWidth / 2 - nodeCenterX, graphHeight / 2 - nodeCenterY).scale(1));
+  //     } else {
+  //       console.log('did not find node')
+  //     }
+  //   }
+  // }, [graphWidth, graphHeight]);
+
+  // const handleZoomToNode = (newNodeIDIndex: number) => {
+  //   if (newNodeIDIndex < 0) {
+  //     newNodeIDIndex = nodeIDList.length
+  //   } else if (newNodeIDIndex > nodeIDList.length) {
+  //     newNodeIDIndex = 0;
+  //   }
+  //   setNodeIDIndex(newNodeIDIndex);
+  //   zoomToNode(nodeIDList[newNodeIDIndex].title);
+  // }
 
   return (
     <>
@@ -531,27 +589,31 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
           ))
         }
         </div>
-        {/* <div style={{ position: "absolute", }}>
-          <button onClick={resetZoom}>Reset</button>
-        </div> */}
-        <button onClick={resetZoom}>Reset Zoom</button>
-        <div ref={graphRef} id="graphviz-container">
-          {graphString ? (
-            <Graphviz
-              dot={graphString}
-              options={{ 
-                zoom: true, 
-                width: graphWidth,
-                height: graphHeight,
-                useWorker: false,
-                // zoomScaleExtent: [0.5, 2],
-                // zoomTranslateExtent: [[-1000, -1000], [1000, 1000]],
-              }}
-            />
-          ) : (
-            <p>No graph to display</p>
-          )}
+        <div id='graph-container'>
+          <div id='graphcontainer-menu-bar'>
+            <button onClick={resetZoom}>Reset Zoom</button>
+            {/* <NodeSelectedLookup nodeIDIndex={nodeIDIndex} handleZoomToNode={handleZoomToNode} nodeIDList={nodeIDList}/> */}
+          </div>
+          <div ref={graphRef} id="graphviz-container">
+            {graphString ? (
+              <Graphviz
+                dot={graphString}
+                options={{ 
+                  zoom: true, 
+                  width: graphWidth,
+                  height: graphHeight,
+                  useWorker: false,
+                  // zoomScaleExtent: [0.5, 2],
+                  // zoomTranslateExtent: [[-1000, -1000], [1000, 1000]],
+                }}
+              />
+            ) : (
+              <p>No graph to display</p>
+            )}
+          </div>
+          
         </div>
+        
         
       </div>
     </>
