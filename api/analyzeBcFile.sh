@@ -1,5 +1,4 @@
-clang -g -c -S -fno-discard-value-names -emit-llvm example.c -o example.ll
 ./svf-ex example.ll
-./mta example.ll
-./saber example.ll
-./ae example.ll
+./SVF/Release-build/bin/mta example.ll
+./SVF/Release-build/bin/saber example.ll
+./SVF/Release-build/bin/ae -overflow example.ll

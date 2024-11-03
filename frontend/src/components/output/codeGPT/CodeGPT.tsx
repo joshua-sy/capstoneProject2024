@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy as syntaxStyle } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-const CodeGPT = ({ code, graphs = {}, terminalOutput, llvmIR, savedMessages, onSaveMessages }: { code: string, graphs: any, terminalOutput: string, llvmIR: string, savedMessages: any, onSaveMessages: any }) => {
+const CodeGPT = ({ code, graphs = {}, terminalOutput, llvmIR, savedMessages, onSaveMessages, passedPrompt }: { code: string, graphs: any, terminalOutput: string, llvmIR: string, savedMessages: any, onSaveMessages: any, passedPrompt: string }) => {
   const [messages, setMessages] = useState(savedMessages || []);
   const [gptInputQuery, setGptInputQuery] = useState('');
   const [suggestionCategory, setSuggestionCategory] = useState('code');
@@ -13,16 +13,20 @@ const CodeGPT = ({ code, graphs = {}, terminalOutput, llvmIR, savedMessages, onS
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleSubmit = async () => {
-    if (!gptInputQuery.trim()) return;
+    callChatGPT(gptInputQuery);
+  };
 
-    const newMessage = { role: 'user', content: gptInputQuery };
+  const callChatGPT = async (prompt: string) => {
+    if (!prompt.trim()) return;
+
+    const newMessage = { role: 'user', content: prompt };
     const updatedMessages = [...messages, newMessage, { role: 'assistant', content: "Loading response..." }];
     setMessages(updatedMessages);
     onSaveMessages(updatedMessages);
     setGptInputQuery('');
 
     try {
-      const response = await doOpenAICall([{ role: 'user', content: gptInputQuery }]);
+      const response = await doOpenAICall([{ role: 'user', content: prompt }]);
       const assistantMessage = { role: 'assistant', content: response.choices[0].message.content };
       const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage];
       setMessages(finalMessages);
@@ -33,7 +37,13 @@ const CodeGPT = ({ code, graphs = {}, terminalOutput, llvmIR, savedMessages, onS
       setMessages(errorMessages);
       onSaveMessages(errorMessages);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (passedPrompt !== '') {
+      callChatGPT(passedPrompt);
+    }
+  }, [passedPrompt]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {

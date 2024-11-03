@@ -5,7 +5,6 @@
 #graph-page-container{
   display: flex;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-
 }
 
 .left {
@@ -26,3 +25,4 @@
 #graph-page-output-container.drag-over {
   border: 2px dashed #007bff;
 }
+

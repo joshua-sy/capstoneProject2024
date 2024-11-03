@@ -8,6 +8,10 @@
   cursor: pointer;
 }
 
+#share-icon {
+  cursor: pointer;
+}
+
 #svf-logo {
   width: 4%;
   height: 4%;

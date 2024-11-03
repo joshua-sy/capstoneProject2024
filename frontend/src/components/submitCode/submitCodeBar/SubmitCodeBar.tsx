@@ -5,7 +5,9 @@ import Button from '@mui/material/Button';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExecutableOptionsMenu from '../executablesOptionsMenu/executablesOptionsMenu';
-
+import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
+import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
+import FontSizeMenu from '../../fontSizeMenu/FontSizeMenu';
 
 
 interface CompileOption {
@@ -28,7 +30,6 @@ interface SubmitCodeBarProps {
   setSelectedExecutableOptions: (selectedCompileOptions: executableOption[]) => void;
   selectedExecutableOptions: executableOption[];
   executableOptions: executableOption[];
-
 }
 
 const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
@@ -63,26 +64,6 @@ const SubmitCodeBar: React.FC<SubmitCodeBarProps> = ({
             </Button>
           </div>
        </div>
-
-        
-
-        {/* <div id='submit-code-bar-button-container'>
-          {/* <div id='submit-code-bar-button-container'>
-            <span id='submit-code-bar-reset-btn-container'>
-              <Button size='small' variant="contained" onClick={resetCompileOptions} endIcon={<RestartAltIcon />}>
-                Reset Default
-              </Button>
-            </span>
-            <span id='submit-code-bar-run-btn-container'>
-              <Button size='small' variant="contained" onClick={submitEvent} endIcon={<PlayArrowIcon />}>
-                Run
-              </Button>
-            </span>
-          </div> */}
-          
-        {/* </div> */}
-        
-        
       </div>
 
     </>

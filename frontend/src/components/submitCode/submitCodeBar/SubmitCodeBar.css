@@ -4,7 +4,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: flex;
   align-items: center;
-  height: 8%;
+  height: 12%;
   /* border-color: #d3d3d3; */
   /* border-style: solid;
   border-width: 2px; */
@@ -31,3 +31,11 @@
   justify-content: center;
   align-items: center;
 }
+
+#submit-codeBar-fontSize-container {
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  padding: 5px;
+}
+
