@@ -261,8 +261,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
             options: {
               isWholeLine: true,
               inlineClassName: `line-decoration-text-${colour}`,
-            },
-          };
+            }
+          }
+          if (editorRef.current) {
+
+            // editorRef.current.setPosition({lineNumber: parseInt(lineNum), column: 1})
+            editorRef.current.revealLine(parseInt(lineNum));
+          }
+
+  
         } else {
           decoration = {
             range: new monaco.Range(parseInt(lineNum), 1, parseInt(lineNum), 1),
