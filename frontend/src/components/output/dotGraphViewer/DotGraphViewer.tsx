@@ -47,6 +47,15 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     e.g graphString = `digraph "callgraph" { ... }`
   */
   const [graphString, setGraphString] = useState('');
+
+  useEffect(() => {
+    // Check if "pag" exists in graphObj, otherwise use the first graph as default
+    if (Object.keys(graphObj).length > 0 && !currentGraph) {
+      const defaultGraphKey = graphObj['pag'] ? 'pag' : Object.keys(graphObj)[0];
+      setCurrentGraph(defaultGraphKey);
+      setGraphString(graphObj[defaultGraphKey]);
+    }
+  }, [graphObj]); // This will run when graphObj is updated
   
   // Used to set the width and height of the DotGraphViewer
   const graphWidth = window.innerWidth * 0.5;

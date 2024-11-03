@@ -159,7 +159,14 @@ int main() {
   const [savedMessages, setSavedMessages] = useState<{ role: string, content: string }[]>([]);
   const [passedPrompt, setPassedPrompt] = useState('');
 
-  const renderComponent = () => {
+  const [tabPositions, setTabPositions] = useState<Record<OutputType, string>>({
+    Graph: 'main',
+    'Terminal Output': 'main',
+    CodeGPT: 'main',
+    LLVMIR: 'main',
+  });
+
+  const renderComponent = (tab: OutputType) => {
     switch (currentOutput) {
       case 'Graph':
         return (
@@ -198,7 +205,7 @@ int main() {
   useEffect(() => {
     if (passedPrompt !== '') {
       setCurrentOutput('CodeGPT');
-      renderComponent();
+      renderComponent('CodeGPT');
     }
   }, [passedPrompt])
 
@@ -346,7 +353,61 @@ int main() {
       setShareLink(createLZStringUrl());
     }
   }, [openShareModal]);
-    
+
+
+  
+  const [isCodeLeft, setIsCodeLeft] = useState(true);
+  const [draggedElement, setDraggedElement] = useState<string | null>(null);
+  const [draggedTab, setDraggedTab] = useState<OutputType | null>(null);
+  const [isThirdWindowVisible, setIsThirdWindowVisible] = useState(false);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string | OutputType) => {
+    if (typeof element === 'string') {
+      // Dragging the entire container (left or right)
+      setDraggedElement(element);
+    } else {
+      // Dragging a tab
+      setDraggedTab(element);
+    }
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.preventDefault();
+    e.currentTarget.classList.add("drag-over");
+
+    if (target === 'third-dropzone' && draggedTab) {
+      setIsThirdWindowVisible(true); // Show third window when dragging a tab over dropzone
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.currentTarget.classList.remove("drag-over");
+
+    if (target === 'third-dropzone' && draggedTab) {
+      setIsThirdWindowVisible(false); // Hide third window if tab leaves dropzone
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, target: string) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("drag-over");
+
+    if (draggedElement && draggedElement !== target) {
+      if ((draggedElement === "code" && target === "output") || (draggedElement === "output" && target === "code")) {
+        setIsCodeLeft(!isCodeLeft);
+      }
+      setDraggedElement(null);
+    } else if (draggedTab) {
+      setTabPositions((prev) => ({
+        ...prev,
+        [draggedTab]: target === 'third-dropzone' ? 'third' : 'main',
+      }));
+      setDraggedTab(null);
+      setIsThirdWindowVisible(false);
+    }
+  };
+
 
   return (
     <>
@@ -358,7 +419,16 @@ int main() {
         openShare={handleOpenShareModal}
       />
       <div id='graph-page-container' style={inlineStyles.container}>
-        <div id='graph-page-code-container' style={{ width: '50%' }}>
+        <div
+          id='graph-page-code-container'
+          draggable
+          onDragStart={(e) => handleDragStart(e, "code")}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "code")}
+          className={isCodeLeft ? 'left' : 'right'}
+          style={{ width: '50%' }}
+        >
           <SubmitCodeBar
             submitEvent={submitCode}
             resetCompileOptions={resetDefault}
@@ -379,9 +449,51 @@ int main() {
             setPassedPrompt={setPassedPrompt}
           />
         </div>
-        <div id='graph-page-output-container' style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-          <OutputMenuBar setCurrentOutput={setCurrentOutput} currentOutput={currentOutput} />
-          <div style={{ flexGrow: 1 }}>{renderComponent()}</div>
+        <div
+          id='graph-page-output-container'
+          draggable
+          onDragStart={(e) => handleDragStart(e, "output")}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "output")}
+          className={isCodeLeft ? 'right' : 'left'}
+          style={{ width: '50%', display: 'flex', flexDirection: 'column' }}
+        >
+          <OutputMenuBar
+              currentOutput={currentOutput}
+              setCurrentOutput={setCurrentOutput}
+              onDragStartTab={(tab) => handleDragStart(null, tab)}
+          />
+          <div
+            style={{ flexGrow: 1 }}
+            onDrop={(e) => handleDrop(e, "main")}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            {renderComponent(currentOutput)}
+          </div>
+
+          {/* Third Window (will appear when a tab is dragged into it) */}
+          {Object.values(tabPositions).includes('third') && (
+            <div
+              className="third-window"
+              style={{
+                borderTop: '1px solid #ddd',
+                padding: '10px',
+                marginTop: '10px',
+                minHeight: '200px',
+              }}
+              onDrop={(e) => handleDrop(e, "third")}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              {Object.entries(tabPositions).map(([tab, position]) =>
+                position === 'third' ? (
+                  <div key={tab} draggable>
+                    {renderComponent(tab as OutputType)}
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>
