@@ -265,7 +265,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({code, setCode, lineNumToHighligh
           }
           if (editorRef.current) {
 
-            editorRef.current.setPosition({lineNumber: parseInt(lineNum), column: 1})
+            // editorRef.current.setPosition({lineNumber: parseInt(lineNum), column: 1})
             editorRef.current.revealLine(parseInt(lineNum));
           }
 
