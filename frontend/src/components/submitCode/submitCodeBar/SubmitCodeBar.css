@@ -1,5 +1,6 @@
 #submit-codeBar-container {
-  background-color: #f7f9fb;
+  background-color: var(--submit-codebar-bg-color);
+  color: var(--text-color);
   padding: 5% 3% 5% 3%;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: flex;
