@@ -523,6 +523,16 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     }
   }, [graphvizInstance]);
 
+  // This new useEffect hook will ensure the first graph is displayed by default
+  useEffect(() => {
+    if (Object.keys(graphObj).length > 0 && !currentGraph) {
+      const defaultGraphKey = graphObj['svfg'] ? 'svfg' : Object.keys(graphObj)[0];
+      setCurrentGraph(defaultGraphKey);
+      setGraphString(graphObj[defaultGraphKey]);
+    }
+  }, [graphObj]); // Runs whenever graphObj updates
+
+
   useEffect(() => {
     if (graphRef.current) {
       graphvizInstance.current = graphviz(graphRef.current)

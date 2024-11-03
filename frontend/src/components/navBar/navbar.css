@@ -1,7 +1,7 @@
 #navbar {
   display: flex;
   justify-content: space-between;
-  padding: 1% 1% 1% 1%;
+  padding: 1% 1% 0% 1%;
 }
 
 #settings-icon {
@@ -13,8 +13,8 @@
 }
 
 #svf-logo {
-  width: 2%;
-  height: 2%;
+  width: 4%;
+  height: 4%;
   display: block;
 }
 
