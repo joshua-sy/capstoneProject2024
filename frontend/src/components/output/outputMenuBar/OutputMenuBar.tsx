@@ -21,7 +21,7 @@ const OutputMenuBar: React.FC<OutputMenuBarProps> = ({
                     className={`${styles.navItem} ${currentOutput === 'Graph' ? styles.active : ''}`} 
                     onClick={() => setCurrentOutput('Graph')}
                     draggable
-                    onDragStart={() => onDragStartTab(tab)}
+                    onDragStart={() => onDragStartTab('Graph')}
                 >
                     Graphs
                 </li>
@@ -29,7 +29,7 @@ const OutputMenuBar: React.FC<OutputMenuBarProps> = ({
                     className={`${styles.navItem} ${currentOutput === 'Terminal Output' ? styles.active : ''}`} 
                     onClick={() => setCurrentOutput('Terminal Output')}
                     draggable
-                    onDragStart={() => onDragStartTab(tab)}
+                    onDragStart={() => onDragStartTab('Terminal Output')}
                 >
                     Terminal Output
                 </li>
@@ -37,7 +37,7 @@ const OutputMenuBar: React.FC<OutputMenuBarProps> = ({
                     className={`${styles.navItem} ${currentOutput === 'CodeGPT' ? styles.active : ''}`} 
                     onClick={() => setCurrentOutput('CodeGPT')}
                     draggable
-                    onDragStart={() => onDragStartTab(tab)}
+                    onDragStart={() => onDragStartTab('CodeGPT')}
                 >
                     CodeGPT
                 </li>
@@ -45,7 +45,7 @@ const OutputMenuBar: React.FC<OutputMenuBarProps> = ({
                     className={`${styles.navItem} ${currentOutput === 'LLVMIR' ? styles.active : ''}`} 
                     onClick={() => setCurrentOutput('LLVMIR')}
                     draggable
-                    onDragStart={() => onDragStartTab(tab)}
+                    onDragStart={() => onDragStartTab('LLVMIR')}
                 >
                     LLVMIR
                 </li>

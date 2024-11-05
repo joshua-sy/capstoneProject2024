@@ -40,3 +40,17 @@
 .read-the-docs {
   color: #888;
 } */
+
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.4s, color 0.4s;
+}
+
+/* Apply to buttons, forms, and other elements */
+button {
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  transition: background-color 0.4s, color 0.4s;
+}

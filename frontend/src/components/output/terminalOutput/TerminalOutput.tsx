@@ -30,7 +30,7 @@ const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString}) =
       <Editor
         height="90vh"
         language="plaintext"
-        theme="vs-light"
+        theme="vs-dark"
         value={terminalOutputString}
         onMount={handleEditorDidMount}
         options={{ fontSize: fontSize }}
