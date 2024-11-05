@@ -363,7 +363,7 @@ int main() {
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string | OutputType) => {
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("draggedItem", typeof element === "string" ? element : element.toString());
+    e.dataTransfer.setData("draggedItem", String(element));
     
     if (typeof element === "string") {
         setDraggedElement(element);
