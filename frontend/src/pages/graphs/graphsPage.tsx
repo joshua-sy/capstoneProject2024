@@ -361,16 +361,19 @@ int main() {
   const [draggedTab, setDraggedTab] = useState<OutputType | null>(null);
   const [isThirdWindowVisible, setIsThirdWindowVisible] = useState(false);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string | OutputType) => {
-    if (typeof element === 'string') {
-      // Dragging the entire container (left or right)
-      setDraggedElement(element);
-    } else {
-      // Dragging a tab
-      setDraggedTab(element);
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement> | null, element: string | OutputType) => {
+    if (e) {
+        e.dataTransfer.effectAllowed = "move";
     }
-    e.dataTransfer.effectAllowed = "move";
-  };
+
+    if (typeof element === 'string') {
+        // Dragging the entire container (left or right)
+        setDraggedElement(element);
+    } else {
+        // Dragging a tab
+        setDraggedTab(element);
+    }
+};
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>, target: string) => {
     e.preventDefault();
