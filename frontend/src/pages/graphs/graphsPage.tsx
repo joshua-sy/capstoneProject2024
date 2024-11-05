@@ -463,7 +463,7 @@ int main() {
           />
           <div
             style={{ flexGrow: 1 }}
-            onDrop={(e) => handleDrop(e, "main")}
+            onDrop={(e) => handleDrop(e)}
             onDragOver={(e) => e.preventDefault()}
           >
             {renderComponent(currentOutput)}
