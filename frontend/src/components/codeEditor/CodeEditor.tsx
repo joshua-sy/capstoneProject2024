@@ -355,6 +355,26 @@ d5f1ec
   }, []);
   console.log('code in editor is ', code);
 
+  const [theme, setTheme] = useState<'vs-light' | 'vs-dark'>('vs-light'); // Theme state for Monaco Editor
+
+  // Effect to handle dynamic theme changes based on the `data-theme` attribute
+  useEffect(() => {
+    const updateTheme = () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'vs-dark' : 'vs-light';
+      setTheme(currentTheme);
+    };
+
+    // Initial theme setting based on the attribute
+    updateTheme();
+
+    // Listen for changes to the data-theme attribute
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    return () => observer.disconnect(); // Cleanup observer on unmount
+  }, []);
+
+
   return (
     <>
     <div>
@@ -365,7 +385,7 @@ d5f1ec
         key={editorKey}
         height="90vh"
         language="c"
-        theme="vs-light"
+        theme={theme}
         value={code}
         onMount={handleEditorDidMount}
         options={{ fontSize: fontSize }}
