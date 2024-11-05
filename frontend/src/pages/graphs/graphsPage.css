@@ -5,6 +5,7 @@
 #graph-page-container{
   display: flex;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--font-size-container-bg-color);
 }
 
 .left {

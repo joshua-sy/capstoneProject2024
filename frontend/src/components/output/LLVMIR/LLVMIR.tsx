@@ -104,6 +104,24 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, code, lineNumDetails, setL
   //     decorationsRef.current.set(newDecorations);
   //   }
   // }
+
+  const [theme, setTheme] = useState('vs-light'); // Default to light theme
+  // Detect theme change based on the "data-theme" attribute
+  useEffect(() => {
+    const updateTheme = () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'vs-dark' : 'vs-light');
+    };
+
+    // Initial theme setting
+    updateTheme();
+
+    // Listen for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    return () => observer.disconnect();
+  }, []);
  
   return (
     <>
@@ -114,7 +132,7 @@ const LLVMIR: React.FC<LLVMIRProps> = ({LLVMIRString, code, lineNumDetails, setL
       <Editor
         height="90vh"
         language='llvm-ir'
-        theme="vs-light"
+        theme={theme}
         value={LLVMIRString}
         onMount={handleEditorDidMount}
         options={{ fontSize: fontSize }}

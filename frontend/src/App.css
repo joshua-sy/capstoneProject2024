@@ -42,7 +42,7 @@
 } */
 
 
-body {
+/* body {
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.4s, color 0.4s;
@@ -53,4 +53,4 @@ button {
   background-color: var(--button-bg-color);
   color: var(--button-text-color);
   transition: background-color 0.4s, color 0.4s;
-}
+} */

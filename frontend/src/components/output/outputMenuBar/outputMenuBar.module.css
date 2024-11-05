@@ -1,6 +1,7 @@
+/* Navbar styles */
 .navBar {
-  background-color: #f2f2f2;
-  color: black;
+  background-color: var(--second-navbar-bg-color); /* Dynamic background color */
+  color: var(--text-color); /* Dynamic text color */
   padding: 10px;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }

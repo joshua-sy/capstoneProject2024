@@ -21,6 +21,26 @@ const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString}) =
     });
   };
 
+  const [theme, setTheme] = useState('vs-light'); // Default to light mode theme
+
+  // Detect theme change based on the "data-theme" attribute
+  useEffect(() => {
+    const updateTheme = () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'vs-dark' : 'vs-light');
+    };
+
+    // Initial theme setting
+    updateTheme();
+
+    // Listen for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    return () => observer.disconnect();
+  }, []);
+
+
   return (
     <>
     <div>
@@ -30,7 +50,7 @@ const TerminalOutput: React.FC<TerminalOutputProps> = ({terminalOutputString}) =
       <Editor
         height="90vh"
         language="plaintext"
-        theme="vs-dark"
+        theme={theme}
         value={terminalOutputString}
         onMount={handleEditorDidMount}
         options={{ fontSize: fontSize }}
