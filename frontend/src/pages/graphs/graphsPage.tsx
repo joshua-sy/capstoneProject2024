@@ -359,7 +359,7 @@ int main() {
   const [isCodeLeft, setIsCodeLeft] = useState(true);
   const [draggedElement, setDraggedElement] = useState<string | null>(null);
   const [draggedTab, setDraggedTab] = useState<OutputType | null>(null);
-  const [isThirdWindowVisible, setIsThirdWindowVisible] = useState(false);
+  // const [isThirdWindowVisible, setIsThirdWindowVisible] = useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: string | OutputType) => {
     e.dataTransfer.effectAllowed = "move";
@@ -401,9 +401,8 @@ int main() {
             [draggedTab]: target === 'third-dropzone' ? 'third' : 'main',
         }));
         setDraggedTab(null);
-        setIsThirdWindowVisible(false);
     }
-};
+  };
 
 
   return (
@@ -417,12 +416,12 @@ int main() {
       />
       <div id='graph-page-container' style={inlineStyles.container}>
       <div
-          id='graph-page-code-container'
+          id="graph-page-code-container"
           draggable
           onDragStart={(e) => handleDragStart(e, "code")}
-          onDragOver={(e) => handleDragOver(e)}
-          onDragLeave={(e) => handleDragLeave(e)}
-          onDrop={(e) => handleDrop(e)}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           className={isCodeLeft ? 'left' : 'right'}
           style={{ width: '50%' }}
       >
@@ -447,19 +446,19 @@ int main() {
           />
         </div>
         <div
-          id='graph-page-output-container'
+          id="graph-page-output-container"
           draggable
           onDragStart={(e) => handleDragStart(e, "output")}
-          onDragOver={(e) => handleDragOver(e)}
-          onDragLeave={(e) => handleDragLeave(e)}
-          onDrop={(e) => handleDrop(e)}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           className={isCodeLeft ? 'right' : 'left'}
           style={{ width: '50%', display: 'flex', flexDirection: 'column' }}
         >
           <OutputMenuBar
               currentOutput={currentOutput}
               setCurrentOutput={setCurrentOutput}
-              onDragStartTab={(tab) => handleDragStart(e, tab)}
+              onDragStartTab={(tab) => (e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, tab)}
           />
           <div
             style={{ flexGrow: 1 }}
@@ -472,7 +471,7 @@ int main() {
           {/* Third Window (will appear when a tab is dragged into it) */}
           {Object.values(tabPositions).includes('third') && (
             <div
-              id='graph-page-output-container'
+              id="graph-page-output-container"
               draggable
               onDragStart={(e) => handleDragStart(e, "output")}
               onDragOver={handleDragOver}
