@@ -121,9 +121,9 @@ typedef struct {
 } IntArray;
 
 IntArray* createIntArray(int size) {
-    IntArray *arr = malloc(sizeof(IntArray)); // Memory leak: no free for arr
+    IntArray *arr = malloc(sizeof(IntArray));
     arr->size = size;
-    arr->data = malloc(size * sizeof(int)); // Memory leak: no free for arr->data
+    arr->data = malloc(size * sizeof(int));
     for (int i = 0; i < size; i++) {
         arr->data[i] = i; // Initialize the array
     }
@@ -131,7 +131,6 @@ IntArray* createIntArray(int size) {
 }
 
 void useIntArray(IntArray *arr) {
-    // Just a placeholder function to simulate use
     for (int i = 0; i < arr->size; i++) {
         printf("%d ", arr->data[i]);
     }
@@ -144,8 +143,6 @@ int main() {
 
     useIntArray(array1);
     useIntArray(array2);
-
-    // Memory leaks: no free for array1 and array2
 
     return 0;
 }
