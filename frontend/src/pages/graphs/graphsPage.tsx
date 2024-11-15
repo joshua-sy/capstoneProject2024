@@ -33,12 +33,12 @@ const compileOptions = [
   { value: '-S', label: '-S' },
   { value: '-fno-discard-value-names', label: '-fno-discard-value-names' },
   { value: '-emit-llvm', label: '-emit-llvm' },
-  { value: '-pass-exit-codes', label: '-pass-exit-codes' },
+  // { value: '-pass-exit-codes', label: '-pass-exit-codes' }, // This argument is causing an error in clang
   { value: '-E', label: '-E' },
   { value: '-v', label: '-v' },
   { value: '-pipe', label: '-pipe' },
   { value: '--help', label: '--help' },
-  { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' },
+  // { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' }, // This argument is causing an error in clang
 ];
 
 const executableOptions = [
