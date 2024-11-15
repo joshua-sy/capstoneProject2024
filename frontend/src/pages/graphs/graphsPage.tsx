@@ -43,8 +43,8 @@ const compileOptions = [
 
 const executableOptions = [
   { value: 'mta', label: 'mta' },
-  { value: 'saber', label: 'saber' },
-  { value: 'ae -overflow', label: 'ae' },
+  { value: 'saber', label: 'saber (Memory Leak Detector)' },
+  { value: 'ae -overflow', label: 'ae (Buffer Overflow Detector)' },
 ];
 
 function GraphsPage() {
