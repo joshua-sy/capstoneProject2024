@@ -33,18 +33,18 @@ const compileOptions = [
   { value: '-S', label: '-S' },
   { value: '-fno-discard-value-names', label: '-fno-discard-value-names' },
   { value: '-emit-llvm', label: '-emit-llvm' },
-  { value: '-pass-exit-codes', label: '-pass-exit-codes' },
+  // { value: '-pass-exit-codes', label: '-pass-exit-codes' }, // This argument is causing an error in clang
   { value: '-E', label: '-E' },
   { value: '-v', label: '-v' },
   { value: '-pipe', label: '-pipe' },
   { value: '--help', label: '--help' },
-  { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' },
+  // { value: '-fcanon-prefix-map', label: '-fcanon-prefix-map' }, // This argument is causing an error in clang
 ];
 
 const executableOptions = [
   { value: 'mta', label: 'mta' },
-  { value: 'saber', label: 'saber' },
-  { value: 'ae -overflow', label: 'ae' },
+  { value: 'saber', label: 'saber (Memory Leak Detector)' },
+  { value: 'ae -overflow', label: 'ae (Buffer Overflow Detector)' },
 ];
 
 function GraphsPage() {
@@ -121,9 +121,9 @@ typedef struct {
 } IntArray;
 
 IntArray* createIntArray(int size) {
-    IntArray *arr = malloc(sizeof(IntArray)); // Memory leak: no free for arr
+    IntArray *arr = malloc(sizeof(IntArray));
     arr->size = size;
-    arr->data = malloc(size * sizeof(int)); // Memory leak: no free for arr->data
+    arr->data = malloc(size * sizeof(int));
     for (int i = 0; i < size; i++) {
         arr->data[i] = i; // Initialize the array
     }
@@ -131,7 +131,6 @@ IntArray* createIntArray(int size) {
 }
 
 void useIntArray(IntArray *arr) {
-    // Just a placeholder function to simulate use
     for (int i = 0; i < arr->size; i++) {
         printf("%d ", arr->data[i]);
     }
@@ -144,8 +143,6 @@ int main() {
 
     useIntArray(array1);
     useIntArray(array2);
-
-    // Memory leaks: no free for array1 and array2
 
     return 0;
 }
