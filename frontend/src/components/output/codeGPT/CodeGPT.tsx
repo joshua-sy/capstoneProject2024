@@ -62,18 +62,18 @@ const CodeGPT = ({ code, graphs = {}, terminalOutput, llvmIR, savedMessages, onS
     return `\`\`\`\n${content}\n\`\`\``;
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    if (suggestion.includes('code')) {
-      suggestion = `Explain the following code:\n\n${wrapInBackticks(code)}`;
-    } else if (suggestion.includes('graph')) {
-      Object.keys(graphs).forEach(graph => {
-        suggestion = suggestion.replace(`Explain the following graph (${graph}):\n\n${graphs[graph]}`, `Explain the following graph (${graph}):\n\n${wrapInBackticks(graphs[graph])}`);
-      });
-    } else if (suggestion.includes('terminal')) {
-      suggestion = `Explain the following terminal output:\n\n${wrapInBackticks(terminalOutput)}`;
-    } else if (suggestion.includes('LLVM IR')) {
-      suggestion = `Explain the following LLVM IR:\n\n${wrapInBackticks(llvmIR)}`;
-    }
+  const handleSuggestionClick = (suggestion: string, suggestionGroup: string) => {
+    // if (suggestion.includes('code') && suggestionGroup !== 'code') {
+    //   suggestion = `Explain the following code:\n\n${wrapInBackticks(code)}`;
+    // } else if (suggestion.includes('graph')) {
+    //   Object.keys(graphs).forEach(graph => {
+    //     suggestion = suggestion.replace(`Explain the following graph (${graph}):\n\n${graphs[graph]}`, `Explain the following graph (${graph}):\n\n${wrapInBackticks(graphs[graph])}`);
+    //   });
+    // } else if (suggestion.includes('terminal')) {
+    //   suggestion = `Explain the following terminal output:\n\n${wrapInBackticks(terminalOutput)}`;
+    // } else if (suggestion.includes('LLVM IR')) {
+    //   suggestion = `Explain the following LLVM IR:\n\n${wrapInBackticks(llvmIR)}`;
+    // }
     setGptInputQuery(suggestion);
   };
 
@@ -108,24 +108,24 @@ const renderMessageContent = (content: string, role: string) => {
       case 'code':
         return (
           <>
-            <button
-              onClick={() => handleSuggestionClick(`Explain the following code:\n\n${code}`)}
+            {code && (<button
+              onClick={() => handleSuggestionClick(`Explain the following code:\n\n${wrapInBackticks(code)}`, 'code')}
               className={styles.suggestionButton}
             >
               Explain the code
-            </button>
-            <button
-              onClick={() => handleSuggestionClick(`What are some improvements that can be made to the following code:\n\n${code}`)}
+            </button>)}
+            {code && (<button
+              onClick={() => handleSuggestionClick(`What are some improvements that can be made to the following code:\n\n${wrapInBackticks(code)}`, 'code')}
               className={styles.suggestionButton}
             >
               Suggest improvements
-            </button>
-            <button
-              onClick={() => handleSuggestionClick(`Are there any bugs in the following code:\n\n${code}`)}
+            </button>)}
+            {code && (<button
+              onClick={() => handleSuggestionClick(`Are there any bugs in the following code:\n\n${wrapInBackticks(code)}`, 'code')}
               className={styles.suggestionButton}
             >
               Find bugs
-            </button>
+            </button>)}
           </>
         );
       case 'graphs':
@@ -134,46 +134,46 @@ const renderMessageContent = (content: string, role: string) => {
             {Object.keys(graphs).map(graph => (
               <button
                 key={graph}
-                onClick={() => handleSuggestionClick(`Explain the following graph (${graph}):\n\n${graphs[graph]}`)}
+                onClick={() => handleSuggestionClick(`Explain the following graph (${graph}):\n\n${wrapInBackticks(graphs[graph])}`, 'graph')}
                 className={styles.suggestionButton}
               >
                 Explain {graph}
               </button>
             ))}
-            <button
-              onClick={() => handleSuggestionClick(`Looking at the graphs, can I make any improvements to the code?\n\n${code}`)}
+            {code && (<button
+              onClick={() => handleSuggestionClick(`Looking at the graphs, can I make any improvements to the code?\n\n${wrapInBackticks(code)}`, 'graph')}
               className={styles.suggestionButton}
             >
               Improvements from graphs
-            </button>
-            <button
-              onClick={() => handleSuggestionClick(`Are there any dead functions in my code?\n\n${code}`)}
+            </button>)}
+            {code && (<button
+              onClick={() => handleSuggestionClick(`Are there any dead functions in my code?\n\n${wrapInBackticks(code)}`, 'graph')}
               className={styles.suggestionButton}
             >
               Find dead functions
-            </button>
+            </button>)}
           </>
         );
       case 'terminal':
         return (
           <>
-            <button
-              onClick={() => handleSuggestionClick(`Explain the following terminal output:\n\n${terminalOutput}`)}
+            {terminalOutput !== 'Run the code to see the terminal output here' && (<button
+              onClick={() => handleSuggestionClick(`Explain the following terminal output:\n\n${wrapInBackticks(terminalOutput)}`, 'terminal')}
               className={styles.suggestionButton}
             >
               Explain terminal output
-            </button>
+            </button>)}
           </>
         );
       case 'llvm':
         return (
           <>
-            <button
-              onClick={() => handleSuggestionClick(`Explain the following LLVM IR:\n\n${llvmIR}`)}
+            {llvmIR !== 'Run the code to see the LLVM IR of your here' && (<button
+              onClick={() => handleSuggestionClick(`Explain the following LLVM IR:\n\n${wrapInBackticks(llvmIR)}`, 'llvm')}
               className={styles.suggestionButton}
             >
               Explain LLVM IR
-            </button>
+            </button>)}
           </>
         );
       default:
