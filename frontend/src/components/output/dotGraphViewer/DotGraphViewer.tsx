@@ -9,7 +9,6 @@ import './dotGraphViewer.css';
 
 
 interface DotGraphViewerProps {
-  dotGraphString: string;
   lineNumToHighlight: Set<number>;
   setlineNumToHighlight: (newLineNumToHighlight: Set<number>) => void;
   graphObj: { [key: string]: string };
@@ -25,7 +24,6 @@ interface DotGraphViewerProps {
 const highlightColours = ['#D9F0E9', '#FFFFE3', '#E9E8F1', '#FFD6D2', '#D4E5EE', '#D5E4EF', '#FFE5C9', '#E5F4CD', '#F2F2F0', '#E9D6E7', '#EDF8EA', '#FFF8CF'];
 
 const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
-  dotGraphString,
   lineNumToHighlight,
   setlineNumToHighlight,
   graphObj,
