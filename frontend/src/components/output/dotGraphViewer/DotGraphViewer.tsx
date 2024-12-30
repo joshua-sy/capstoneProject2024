@@ -83,7 +83,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
               // Finds the first function name then breaks
               let funcTofind = '';
               for (const callNodeText of nodeTextContentList) {
-                console.log('callNodeText ', callNodeText, ' funcTofind is ', funcTofind);
                 const match = funcPattern.exec(callNodeText);
                 if (match) {
                   const funcString = match[0];
@@ -108,12 +107,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             const node = event.target.closest('g.node');
             if (node) {
               console.log('node', node);
-              const nodeId = node.querySelector('title').textContent;
-              // const nodeText = node.querySelector('text').textContent;
               const nodeTextList = node.querySelectorAll('text');
-              // const nodeTextListContent = nodeTextList.map((node) => {
-                
-              // })
               let nodeTextContentList: string[] = [];
               nodeTextList.forEach((nodeText) => {
                 nodeTextContentList.push(nodeText.textContent);
@@ -131,7 +125,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
 
               // check with svf-ex on how it would spit back out examples from comp6131
               nodeTextContentList.forEach(nodeText => {
-                console.log('nodeText in loop', nodeText)
                 if ((matchLineNum = lineRegex.exec(nodeText)) !== null) {
                   newlineNumToHighlight.add(parseInt(matchLineNum[1], 10));
                 }
@@ -146,7 +139,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
               });
 
               setlineNumToHighlight(newlineNumToHighlight);
-              // setSelectedNode(nodeId);
             }
           });
         }
@@ -158,7 +150,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
 
   useEffect(() => {
     const graphvizContainer = graphRef.current;
-
     if (currentGraph === 'callgraph.dot' || currentGraph === 'ptacg.dot' || currentGraph === 'tcg.dot') {
       const codeBylines = code.split('\n');
       addFillColorToCallNode(codeBylines);
@@ -170,11 +161,8 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       if (svg) {
         const nodes = svg.querySelectorAll('g.node');
         nodes.forEach(node => {
-          // getting node Id for debugging purposes. We can remove this later
           const nodeId = node.querySelector('title').textContent;
-          console.log('nodeId is ', nodeId);
-          // const nodeId = node.attr('id');
-
+        
           // Getting all the text in the node. nodeTextList is a list of object 
           const nodeTextList = node.querySelectorAll('text');
           // console.log('nodeTextList', typeof(nodeTextList) ,nodeTextList);
@@ -189,7 +177,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
             const lnRegex = /ln:\s*(\d+)/g;
 
             let matchLineNum;
-            // console.log('newlineNumToHighlight BEFORE', newlineNumToHighlight);
 
             // check with svf-ex on how it would spit back out examples from comp6131
             nodeTextContentList.forEach(nodeText => {
@@ -218,7 +205,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
               }
             });          
         });
-        console.log(lineNumToNodes);
         const lineNums = Object.keys(lineNumToNodes);
         const numericKeys = lineNums.map(key => parseInt(key, 10));
         const sortedNumericKeys = numericKeys.sort((a, b) => a - b);
@@ -231,7 +217,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
           });
         });
 
-        console.log(lineNumToNodes);
         addFillColorToNode(nodeIDColour, graphObj[currentGraph]);
         setLineNumDetails(lineNumToNodes);
       }
@@ -284,7 +269,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
           console.log('No call nodes match match found');
         }
       });
-      console.log('funcs', funcs);
       const funcLineColor: {[func: string]: {line: Set<number>, colour: string}} = {};
       const lineNumToNodes: { [key: string]: { nodeOrllvm: string[], colour: string } } = {};
       const funcToColour: { [func: string]: string } = {};
@@ -330,7 +314,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       nodesOnly.forEach(originalNode => {
         if (originalNode.includes('shape')) {
           for (const nodeId in nodeIDColour) {
-            console.log('nodeId in addFillColorToNode',nodeId);
             if (originalNode.includes(nodeId)) {
               const addingFillColour = `, style=filled, fillcolor="${nodeIDColour[nodeId]}"];`
               const modifiedString = originalNode.substring(0, originalNode.length - 2) + addingFillColour;
@@ -354,8 +337,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         console.log('new graphString', newGraphString);
         setGraphString(newGraphString);
       });
-    } else {
-      console.log('No content found within the curly braces.');
     }
   }
 
