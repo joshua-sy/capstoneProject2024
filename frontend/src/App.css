@@ -48,7 +48,7 @@
   transition: background-color 0.4s, color 0.4s;
 }
 
-/* Apply to buttons, forms, and other elements */
+/* Apply to buttons, forms, and other elements 
 button {
   background-color: var(--button-bg-color);
   color: var(--button-text-color);
