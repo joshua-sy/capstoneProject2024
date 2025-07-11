@@ -70,6 +70,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       const svg = graphvizContainer.querySelector('svg');
       console.log('svg', svg);
       if (svg) {
+        // The if condition adds the event listners to nodes in call graphs
         if (currentGraph === 'callgraph.dot' || currentGraph === 'ptacg.dot' || currentGraph === 'tcg.dot') {
           svg.addEventListener('click', (event) => {
             const node = event.target.closest('g.node');
@@ -102,6 +103,7 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
               setlineNumToHighlight(newlineNumToHighlight);
             }              
           });
+        // Here we add event listeners to other types of graphs
         } else {
           svg.addEventListener('click', (event) => {
             const node = event.target.closest('g.node');
@@ -148,12 +150,14 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     }
   }, [graphString]);
 
+  /*
+    The useEffect adds background colour to the nodes
+  */
   useEffect(() => {
     const graphvizContainer = graphRef.current;
     if (currentGraph === 'callgraph.dot' || currentGraph === 'ptacg.dot' || currentGraph === 'tcg.dot') {
       const codeBylines = code.split('\n');
       addFillColorToCallNode(codeBylines);
-      console.log('codeBylines', codeBylines);
     } else if (graphvizContainer) {
       const svg = graphvizContainer.querySelector('svg');
       let newlineNumToHighlight: Set<number> = new Set<number>();
@@ -165,7 +169,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         
           // Getting all the text in the node. nodeTextList is a list of object 
           const nodeTextList = node.querySelectorAll('text');
-          // console.log('nodeTextList', typeof(nodeTextList) ,nodeTextList);
             let nodeTextContentList: string[] = [];
             nodeTextList.forEach((nodeText) => {
               // the actual string content is in the key textContent
@@ -223,16 +226,14 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     }
   }, [currentGraph]);
 
+  /* Function used to add background color to call nodes */
   const addFillColorToCallNode = (codeBylines: string[]) => {
     const graphContentPattern = /digraph\s*".*?"\s*{([\s\S]*)}/;
 
     // Execute the regex to find a match
     const match = graphContentPattern.exec(graphString);
-    console.log('old graphString', graphString);
-
     if (match) {
       const graphContent = match[1].trim();
-      console.log('graphContent' ,graphContent);
       const splitGraphContent = graphContent.split('\n\t');
 
       // Filter out any empty strings that might occur from the split
@@ -243,9 +244,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       */
       removedEmptyStrings.shift();
 
-
-      console.log('non empty parts',removedEmptyStrings);
-
       /*
       Removing edges from the list
       */
@@ -254,7 +252,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
       const edgePattern = /([\w:]+)\s+->\s+([\w:]+)/g;
       const funcs: string[] = [];
       const nodesOnly = removedEmptyStrings.filter(item => !edgePattern.test(item));
-      console.log('nodesOnly for call nodes', nodesOnly);
       const funcPattern = /fun: ([^\\]+)\\/;
       nodesOnly.forEach(callNode => {
         const match = funcPattern.exec(callNode);
@@ -264,9 +261,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
           /// TODO: Naive approach. Assumes functions are funcName( i.e there are no spaces between funcName and the bracket
           const removeBackSlash = removeFun.replace('\\', '(');
           funcs.push(removeBackSlash);
-          console.log('the function string is ' ,funcString);
-        } else {
-          console.log('No call nodes match match found');
         }
       });
       const funcLineColor: {[func: string]: {line: Set<number>, colour: string}} = {};
@@ -299,6 +293,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
     } 
   }
 
+  /* Adds fill colour to nodes by manipulating the dotgraph string
+    adds the following: style=filled, fillcolor="${nodeIDColour[nodeId]}" to nodes with corresponding line graph
+  */
   const addFillColorToNode = (nodeIDColour:{ [key: string]: string }, graphString: string) => {
     const graphContentPattern = /digraph\s*".*?"\s*{([\s\S]*)}/;
 
@@ -326,15 +323,9 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
         }
         let newGraphString = graphString;
         modifiedNodes.forEach((moddedNode) => {
-          console.log(moddedNode['original'], ' does substring exists for ',newGraphString.includes(moddedNode['original']));
           newGraphString = newGraphString.replace(moddedNode['original'], moddedNode['modified']);
-          console.log(moddedNode['modified'], ' does modified exists for ',newGraphString.includes(moddedNode['modified']));
 
         });
-        if (graphString === newGraphString) {
-          console.log('no replacement occurred');
-        }
-        console.log('new graphString', newGraphString);
         setGraphString(newGraphString);
       });
     }
@@ -342,7 +333,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
 
   const getNodes = (matchedDigraph: RegExpExecArray) => {
     const graphContent = matchedDigraph[1].trim();
-      console.log('graphContent' ,graphContent);
       const splitGraphContent = graphContent.split('\n\t');
 
       // Filter out any empty strings that might occur from the split
@@ -382,12 +372,10 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
 
     // Execute the regex to find a match
     const match = graphContentPattern.exec(graphString);
-    console.log('old graphString', graphString);
 
     if (match) {
       const nodesOnly = getNodes(match);
       const modifiedNodes = [];
-      // let selectedNodeIds = [];
       nodesOnly.forEach(originalNode => {
         if (originalNode.includes('shape')) {
           lineNumDetails[currCodeLineNum]['nodeOrllvm'].forEach(nodeId => {
@@ -412,7 +400,6 @@ const DotGraphViewer: React.FC<DotGraphViewerProps> = ({
   }
 
   const graphBtnClick = (graphKey: string) => {
-    console.log('graphKey clicked btn', graphKey);
     if (graphKey !== currentGraph) {
       setGraphString(graphObj[graphKey]);
       setCurrentGraph(graphKey);
